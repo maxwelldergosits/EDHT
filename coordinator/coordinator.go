@@ -1,17 +1,23 @@
 package main
 
 import (
-  "fmt"
+  "log"
   "flag"
 )
 
 
+const(
+  Daemon = iota
+  Coordinator
+)
 
-  var (
-    port string
-    ip   string
-    verbose bool
-  )
+
+
+var (
+  port string
+  ip   string
+  verbose bool
+)
 
 
 func registerCLA(){
@@ -28,9 +34,9 @@ func registerCLA(){
 func main() {
 
   registerCLA()
-  fmt.Println("port:",port)
-  fmt.Println("ip-address:",ip)
-  fmt.Println("verbose:",verbose)
+  log.Println("port:",port)
+  log.Println("ip-address:",ip)
+  log.Println("verbose:",verbose)
   startServer(ip,port)
 
 }
