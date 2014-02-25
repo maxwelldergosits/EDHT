@@ -42,6 +42,15 @@ func main() {
   log.Println("port:",port)
   log.Println("ip-address:",ip)
   log.Println("verbose:",verbose)
+
+  InitLocalState(ip,port)
+
+  if(groupconnect) {
+
+    AttachToGroup(groupAddress,groupPort)
+
+  }
+
   startServer(ip,port)
 
 }

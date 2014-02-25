@@ -5,21 +5,10 @@ import (
   "net/rpc"
   "net/http"
   "net"
-  . "EDHT/common"
 )
 
-
-var (
-
-  info CoordinatorInfo
-  state State
-
-)
 
 type Member int
-
-
-
 
 func startServer(ip string, port string) {
 
