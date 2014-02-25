@@ -6,38 +6,20 @@ import (
   "net/http"
   "net"
   . "EDHT/common"
-  "errors"
 )
 
 
 var (
 
-  state State = State{0,map[int]NodeInfo{}}
-
+  info CoordinatorInfo
+  state State
 
 )
 
 type Member int
 
-func (t *Member) Register(info * NodeInfo, res * int) error {
 
-  if info.Address == "" {
-    return errors.New("need address")
-  }
 
-  log.Println("new member registered, id:",state.NextID)
-  log.Println("type:",info.MemberType)
-  log.Println("ip:",info.Address)
-  log.Println("port:",info.Port)
-
-  info.Id = state.NextID
-  info.Token = 0
-  state.NextID+=1
-
-  state.Nodes[info.Id] = *info
-  return nil
-
-}
 
 func startServer(ip string, port string) {
 
