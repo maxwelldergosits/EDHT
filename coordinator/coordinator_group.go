@@ -2,7 +2,6 @@ package main
 
 import (
   "log"
-  "container/list"
   "net/rpc"
   . "EDHT/utils"
 )
@@ -10,7 +9,7 @@ import (
 var (
   localAddress string
   localPort    string
-  remoteServers list.List
+  remoteServers map[string]RemoteServer
 )
 
 
@@ -29,7 +28,7 @@ func InitLocalState(alocalAddress string, alocalPort string) {
   localAddress = alocalAddress
   localPort    = alocalPort
 
-  remoteServers = *list.New()
+  remoteServers = map[string]RemoteServer{}
 
 }
 
@@ -39,10 +38,11 @@ type RemoteServer struct{
 }
 
 
+
 func addToServers(rs * RemoteServer) {
-  remoteServers.PushFront(*rs)
   var ns = *rs
-  log.Println("New Coordinator at ",ns.Address+":"+ns.Port,"is now part of group")
+  remoteServers[ns.Address+":"+ns.Port] = ns
+  log.Println("New coordinator at",ns.Address+":"+ns.Port)
 }
 
 // this is an RPC method so we can remotely tell a coordinator to add a new remoteserver
@@ -55,32 +55,18 @@ func (t *Member) RegisterCoordinator(ns * RemoteServer, res * int) error{
 
 }
 
-func (t *Member) RegisterCoordinatorList(ns * []RemoteServer, res * int) error{
-
-  servers := *ns
-  for i := range servers {
-    addToServers(&servers[i])
-  }
-  *res = 1
-  return nil
-
-}
-
 // this rpc call prompts reciever to add this new server to the group
-func (t * Member) AttachRSToGroup(ns RemoteServer, res * int) error {
+func (t * Member) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer) error {
   // channel for barrier
   done := make(chan bool)
-  num := remoteServers.Len()
-//  sl := remoteServers
+  var num = 0
 
 
-  for e := remoteServers.Front(); e != nil; e = e.Next() {
-
+  for _,v := range remoteServers {
+    num++
 
     // spawn off other goroutines to tell other coordinators
-    log.Println("about to make rpc call to",e.Value)
-    if e.Value == nil {break}
-    func(rs RemoteServer) {
+    go func(rs RemoteServer) {
 
 
       // start connection to remote Server
@@ -99,34 +85,12 @@ func (t * Member) AttachRSToGroup(ns RemoteServer, res * int) error {
 
       client.Close()
       done<-true
-    }(e.Value.(RemoteServer))
+    }(v)
 
   }
 
-
-  //copy servers to array
-  var numServers = remoteServers.Len()
-
-  var sa  = make([]RemoteServer,numServers)
-  var saIndex = 0
-  for e:= remoteServers.Front(); e != nil; e = e.Next() {
-    sa[saIndex] = e.Value.(RemoteServer)
-    saIndex++
-  }
-
-  // start connection to remote Server
-  client, err := rpc.DialHTTP("tcp", ns.Address + ":" + ns.Port)
-  if err != nil {
-    log.Fatal("dialing:", err)
-  }
-
-  // make the rpc call
-  args := &sa
-  var reply int
-  err = client.Call("Member.RegisterCoordinatorList", args, &reply)
-  if err != nil {
-    log.Fatal("register error:", err)
-  }
+  //copy servers to slice
+  *res = remoteServers
 
   // locally register new server
   addToServers(&ns)
@@ -145,10 +109,9 @@ func AttachToGroup(groupAddress string, groupPort string) {
 
 
   var rs RemoteServer = RemoteServer{localAddress,localPort}
-  var res int
+  var res map[string]RemoteServer
 
   // start connection to remote Server
-  log.Println("making rpc call to", groupAddress+":"+groupPort)
   client, err := rpc.DialHTTP("tcp", groupAddress + ":" + groupPort)
   if err != nil {
     log.Fatal("dialing:", err)
@@ -158,6 +121,8 @@ func AttachToGroup(groupAddress string, groupPort string) {
   if err != nil {
     log.Fatal("attach error:", err)
   }
+  remoteServers = res
+  remoteServers[groupAddress+":"+groupPort]=RemoteServer{groupAddress,groupPort}
 
 }
 

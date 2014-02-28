@@ -39,10 +39,11 @@ func registerCLA(){
 func main() {
 
   registerCLA()
-  log.Println("port:",port)
-  log.Println("ip-address:",ip)
-  log.Println("verbose:",verbose)
 
+  if(verbose) {
+    log.Println("port:",port)
+    log.Println("ip-address:",ip)
+  }
   InitLocalState(ip,port)
 
   if(groupconnect) {
