@@ -33,17 +33,17 @@ func SpawnDaemon(address string, port string) *RemoteServer{
 	return &Daemon{ServerDetails:remote_server, hashtable:table}
 }
 
-/*Given the ip address and port for a known coordinator, will attempt to connect 
+/*Given the ip address and port for a known coordinator, will attempt to connect
  *to the coordinator with the provided ip address and port number.
  *TODO: test error condition with AttachToGroup
 */
 func (t *Daemon) RegisterDaemon(coordinator_ip string, coordinator_port string) error{
 	return AttachToGroup(coordinator_ip, coordinator_port)
-	
+
 }
 
 /*Given a DataPair struct, Put will associate the member "key" with member "value" in the daemon's data store.
- *Performing multiple puts with the same key but different values will result in the key being 
+ *Performing multiple puts with the same key but different values will result in the key being
  *associated with the most recent value. The function's return value
  *is non-nil if the storage is successful. The empty string is not accepted as a valid key and
  *will result in Put failure. */
@@ -67,7 +67,7 @@ func (t *Daemon) Get(key string, reply *string) error {
 	return err
 }
 
-/*GetAllKeys will return an array consisting of all keys in the daemon's data store in arbitrary order. 
+/*GetAllKeys will return an array consisting of all keys in the daemon's data store in arbitrary order.
  *Argument arg is ignored, and reply is not used. Error is nil on success, non-nil on failure.
  */
 func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
@@ -80,7 +80,7 @@ func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
 	return nil
 }
 
-/*WriteToDisk will attempt to dump the entire contents of the daemon's data store into a file 
+/*WriteToDisk will attempt to dump the entire contents of the daemon's data store into a file
  *named by "path." As discussed on Friday, "path" will temporarily take the name of a local file
  *in the same directory, and will eventually be changed to provide support for absolute paths.
  *Error is nil on success, non-nil on failure; Reply is not used.
@@ -91,16 +91,15 @@ func (t *Daemon) WriteToDisk(path string, reply *string) error{
 	if(err != nil){
 		return errors.New("WriteToDisk: OS file error.")
 	}
-	
+
 	defer f.Close()
-	
+
 	for key, value := range t.Store{
 		_, err := f.WriteString(key + ", " + value)
 		if(err != nil){
 			return errors.New("WriteToDisk: WriteString error.")
 		}
 	}
-	
 	f.Sync()
 	return nil
 }
