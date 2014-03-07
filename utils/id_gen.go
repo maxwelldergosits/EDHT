@@ -1,6 +1,5 @@
 package utils
 
-<<<<<<< HEAD
 
 import (
   "encoding/binary"
@@ -27,4 +26,15 @@ func GenMachineId() int64{
   myfirstint, _ := binary.ReadVarint(buf)
 
   return myfirstint
+}
+
+// returns mac address of local computer
+func GenMachineId() int64{
+
+  interfaces,_ := net.Interfaces()
+  buf := bytes.NewBuffer(interfaces[0].HardwareAddr) // b is []byte
+  myfirstint, _ := binary.ReadVarint(buf)
+
+  return myfirstint
+
 }

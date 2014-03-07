@@ -53,7 +53,6 @@ func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
   remoteDaemons = map[int64]RemoteServer{}
   pendingCommits = map[int64]RemoteServer{}
 
-
 }
 
   if !connect {
