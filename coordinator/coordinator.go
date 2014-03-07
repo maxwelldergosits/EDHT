@@ -54,6 +54,8 @@ func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
   pendingCommits = map[int64]RemoteServer{}
 
 
+}
+
   if !connect {
 
     machine_id := GenMachineId()

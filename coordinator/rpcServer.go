@@ -33,7 +33,6 @@ func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) int {
   if err != nil {
   log.Fatal("dialing:", err)
   }
-
   // Synchronous call
   args := ns
   var reply int

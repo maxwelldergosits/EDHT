@@ -18,9 +18,15 @@ var (
 
 
 
+func addToServers(rs * RemoteServer) {
+  var ns = *rs
+  remoteServers[ns.Address+":"+ns.Port] = ns
+  log.Println("New coordinator at",ns.Address+":"+ns.Port)
+}
+
 
 // this rpc call prompts reciever to add this new server to the group
-func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) error {
+func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer) error {
 
   *res = AttachRSToGroup_local(ns)
   return nil
@@ -92,9 +98,13 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
     localCommit(rs)
 
+<<<<<<< HEAD
     for _,v := range remoteCoordinators {
 
       if v == rs || v.ID == id {num--; continue} // we shouldn't wait for a response from
+=======
+    for _,v := range remoteServers {
+>>>>>>> work on the two phase commit
 
       go func(v RemoteServer) {
 
@@ -112,8 +122,13 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
     localAbort(rs)
 
+<<<<<<< HEAD
     for _,v := range remoteCoordinators {
       if v == rs {continue}
+=======
+    for _,v := range remoteServers {
+
+>>>>>>> work on the two phase commit
       go func(v RemoteServer) {
 
         addr := v.Address+":"+v.Port
@@ -150,8 +165,6 @@ func AttachToGroup(groupAddress string, groupPort string) {
   client, err := rpc.DialHTTP("tcp", groupAddress + ":" + groupPort)
   if err != nil {
     log.Fatal("dialing:", err)
-  }
-
   // make the rpc call
   err = client.Call("Coordinator.AttachRSToGroup", rs, &res)
   if err != nil {

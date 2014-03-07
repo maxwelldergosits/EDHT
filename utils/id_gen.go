@@ -1,5 +1,6 @@
 package utils
 
+<<<<<<< HEAD
 
 import (
   "encoding/binary"
@@ -26,5 +27,4 @@ func GenMachineId() int64{
   myfirstint, _ := binary.ReadVarint(buf)
 
   return myfirstint
-
 }

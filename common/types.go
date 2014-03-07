@@ -28,3 +28,9 @@ type Hashtable struct {
 	Size int
 	Store map[string]string
 }
+type RemoteServer struct{
+  Address string
+  Port string
+  ID int64
+}
+
