@@ -20,21 +20,20 @@ func TestInitLocalState(t * testing.T) {
 
 }
 
+
+
 func TestRegisterCoordinator(t * testing.T) {
 
   var rs = RemoteServer{"127.0.0.1","1234"}
-  var res int
 
-  RegisterCoordinator(&rs,&res)
-
-  if res != 1 {
-    t.Error("res incorrect")
-  }
+  addToServers(&rs)
 
   var foundRs bool = false
 
-  for e := remoteServers.Front(); e != nil; e = e.Next() {
-    if e.Value == rs { foundRs = true; break; }
+  for _,v := range remoteServers {
+    if v == rs {
+      foundRs = true
+    }
   }
 
   if foundRs != true {
@@ -42,3 +41,5 @@ func TestRegisterCoordinator(t * testing.T) {
   }
 
 }
+
+

@@ -57,6 +57,14 @@ func (t *Member) RegisterCoordinator(ns * RemoteServer, res * int) error{
 
 // this rpc call prompts reciever to add this new server to the group
 func (t * Member) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer) error {
+
+  *res = AttachRSToGroup_local(ns)
+  return nil
+
+}
+
+func AttachRSToGroup_local(ns RemoteServer) map[string]RemoteServer {
+
   // channel for barrier
   done := make(chan bool)
   var num = 0
@@ -89,9 +97,11 @@ func (t * Member) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer
 
   }
 
-  //copy servers to slice
-  *res = remoteServers
+  dest := make(map[string]RemoteServer)
 
+  for k,v := range remoteServers {
+    dest[k] = v
+  }
   // locally register new server
   addToServers(&ns)
 
@@ -100,7 +110,7 @@ func (t * Member) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer
     <-done
   }
 
-  return nil
+  return dest
 }
 
 
