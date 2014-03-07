@@ -13,6 +13,7 @@ var (
   remoteCoordinators  map[int64]RemoteServer
   remoteDaemons       map[int64]RemoteServer
   pendingCommits      map[int64]RemoteServer
+  id                  int64
 )
 
 
@@ -54,7 +55,10 @@ func localAbort(rs RemoteServer) int {
 }
 
 func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
-  verboseLog("attaching to:",rs)
+  verboseLog("attaching:",rs)
+
+  mid := rs.ID
+  rs.ID = utils.GenId(mid,rs.Coordinator)
 
   done := make(chan bool)
   var num = 0
@@ -86,7 +90,7 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     localCommit(rs)
 
     for _,v := range remoteCoordinators {
-
+      if v == rs {continue}
       go func(v RemoteServer) {
 
         addr := v.Address+":"+v.Port
@@ -104,7 +108,7 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     localAbort(rs)
 
     for _,v := range remoteCoordinators {
-
+      if v == rs {continue}
       go func(v RemoteServer) {
 
         addr := v.Address+":"+v.Port
@@ -148,5 +152,8 @@ func AttachToGroup(groupAddress string, groupPort string) {
     log.Fatal("attach error:", err)
   }
   remoteCoordinators = res.Coordinators
+  remoteDaemons      = res.Daemons
+  id = res.ID
+  verboseLog("id =",res.ID)
 }
 

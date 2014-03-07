@@ -5,10 +5,16 @@ import (
   "encoding/binary"
   "bytes"
   "net"
+  "time"
 )
-func GenId(timestamp int64, machineid int64, sequence_number int64 ) int64{
+func GenId(machineid int64, coor bool) int64{
 
-  return timestamp << 22 | machineid << 12 | sequence_number
+  timestamp := time.Now().Unix()
+  if coor {
+    return timestamp << 22 | machineid << 1 | 1
+  } else {
+    return timestamp << 22 | machineid << 1 | 0
+  }
 
 }
 
