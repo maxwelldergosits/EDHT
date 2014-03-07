@@ -30,7 +30,7 @@ func TestRegisterCoordinator(t * testing.T) {
 
   var foundRs bool = false
 
-  for _,v := range remoteServers {
+  for _,v := range remoteCoordinators {
     if v == rs {
       foundRs = true
     }

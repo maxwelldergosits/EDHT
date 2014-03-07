@@ -58,7 +58,7 @@ func propseRegisterRPC(ns * RemoteServer, addr string) int {
 // RPC method//
 func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * int) error {
 
-  if !preCommitServer(ns) {
+  if preCommit(*ns)!=1 {
     *res = 0 //**responding NO**//
   } else {
     *res = 1 //** responding YES**//
@@ -78,7 +78,7 @@ func registerRPC(ns * RemoteServer, addr string) int {
 // RPC method//
 func (t *Coordinator) Register(ns * RemoteServer, res * int) error{
 
-  *res = commitServer(ns)
+  *res = localCommit(*ns)
 
   return nil
 
@@ -96,7 +96,7 @@ func rollBackRegisterRPC(ns * RemoteServer, addr string) int{
 // RPC method//
 func (t* Coordinator) RollbackRegister(ns * RemoteServer, res * int) error {
 
-  *res = rollback(ns)
+  *res = localAbort(*ns)
 
   return nil
 

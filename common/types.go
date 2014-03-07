@@ -1,9 +1,16 @@
 package common
 
 type RemoteServer struct{
-  Address string
-  Port string
-  ID int64
+  Address     string
+  Port        string
+  ID          int64
+  Coordinator bool
+}
+
+type RegisterReply struct {
+  Coordinators     map[int64]RemoteServer
+  Daemons          map[int64]RemoteServer
+  ID               int64
 }
 
 
@@ -16,10 +23,3 @@ type Hashtable struct {
 	Size int
 	Store map[string]string
 }
-
-type RemoteServer struct{
-  Address string
-  Port string
-  ID int64
-}
-

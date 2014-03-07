@@ -4,24 +4,22 @@ import (
   "log"
   "net/rpc"
   . "EDHT/common"
+  "EDHT/utils"
 )
 
 var (
-  localAddress string
-  localPort    string
-  remoteServers map[string]RemoteServer
+  localAddress        string
+  localPort           string
+  remoteCoordinators  map[int64]RemoteServer
+  remoteDaemons       map[int64]RemoteServer
+  pendingCommits      map[int64]RemoteServer
 )
 
 
-func addToServers(rs * RemoteServer) {
-  var ns = *rs
-  remoteServers[ns.Address+":"+ns.Port] = ns
-  log.Println("New coordinator at",ns.Address+":"+ns.Port)
-}
 
 
 // this rpc call prompts reciever to add this new server to the group
-func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteServer) error {
+func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) error {
 
   *res = AttachRSToGroup_local(ns)
   return nil
@@ -29,12 +27,39 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * map[string]RemoteS
 }
 
 
-func AttachRSToGroup_local(rs RemoteServer) map[string]RemoteServer {
+func preCommit(rs RemoteServer) int {
+  verboseLog("precommiting:",rs)
+
+  pendingCommits[rs.ID] = rs
+
+  return 1
+}
+
+func localCommit(rs RemoteServer) int {
+  verboseLog("commiting:",rs)
+  if rs.Coordinator {
+    remoteCoordinators[rs.ID]=rs
+  } else {
+    remoteDaemons[rs.ID]=rs
+  }
+  delete(pendingCommits,rs.ID)
+
+  return 1
+}
+
+func localAbort(rs RemoteServer) int {
+  verboseLog("aborting:",rs)
+  delete(pendingCommits,rs.ID)
+  return 1
+}
+
+func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
+  verboseLog("attaching to:",rs)
 
   done := make(chan bool)
   var num = 0
   //precommit to all nodes
-  for _,v := range remoteServers {
+  for _,v := range remoteCoordinators {
 
     num++
 
@@ -60,7 +85,7 @@ func AttachRSToGroup_local(rs RemoteServer) map[string]RemoteServer {
 
     localCommit(rs)
 
-    for _,v := range remoteServers {
+    for _,v := range remoteCoordinators {
 
       go func(v RemoteServer) {
 
@@ -78,7 +103,7 @@ func AttachRSToGroup_local(rs RemoteServer) map[string]RemoteServer {
 
     localAbort(rs)
 
-    for _,v := range remoteServers {
+    for _,v := range remoteCoordinators {
 
       go func(v RemoteServer) {
 
@@ -98,15 +123,19 @@ func AttachRSToGroup_local(rs RemoteServer) map[string]RemoteServer {
     <-done
   }
 
-  return remoteServers
+  if rs.Coordinator {
+    return RegisterReply{remoteCoordinators,remoteDaemons,rs.ID}
+  }else {
+    return RegisterReply{nil,nil,rs.ID}
+  }
 
 }
 
 
 func AttachToGroup(groupAddress string, groupPort string) {
 
-  var rs RemoteServer = RemoteServer{localAddress,localPort,0}
-  var res map[string]RemoteServer
+  var rs RemoteServer = RemoteServer{localAddress,localPort,utils.GenMachineId(),true}
+  var res RegisterReply
 
   // start connection to remote Server
   client, err := rpc.DialHTTP("tcp", groupAddress + ":" + groupPort)
@@ -118,8 +147,6 @@ func AttachToGroup(groupAddress string, groupPort string) {
   if err != nil {
     log.Fatal("attach error:", err)
   }
-  remoteServers = res
-  remoteServers[groupAddress+":"+groupPort]=RemoteServer{groupAddress,groupPort,0}
-
+  remoteCoordinators = res.Coordinators
 }
 

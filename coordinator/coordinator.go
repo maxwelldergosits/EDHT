@@ -16,6 +16,8 @@ var (
   groupAddress string
   verbose bool
   groupconnect bool
+  verboseLog func(a ...interface{})
+  normalLog func(a ...interface{})
 )
 
 func InitLocalState(alocalAddress string, alocalPort string) {
@@ -33,7 +35,9 @@ func InitLocalState(alocalAddress string, alocalPort string) {
   localAddress = alocalAddress
   localPort    = alocalPort
 
-  remoteServers = map[string]RemoteServer{}
+  remoteCoordinators = map[int64]RemoteServer{}
+  remoteDaemons = map[int64]RemoteServer{}
+  pendingCommits = map[int64]RemoteServer{}
 
 }
 
@@ -52,7 +56,8 @@ func registerCLA(){
 
 func main() {
 
- registerCLA()
+  registerCLA()
+  normalLog,verboseLog = GenLogger(verbose,"")
 
   if(verbose) {
     log.Println("port:",port)

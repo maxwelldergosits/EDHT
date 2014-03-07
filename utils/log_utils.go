@@ -8,7 +8,7 @@ import (
 
 
 
-func gen_logger(verbose bool, file string) (printer func(a ...interface{}), verbosePrinter func(a ...interface{})) {
+func GenLogger(verbose bool, file string) (printer func(a ...interface{}), verbosePrinter func(a ...interface{})) {
   var ver func(a ...interface{})
   if verbose {
     ver = func(a ...interface{}) {
