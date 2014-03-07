@@ -7,6 +7,11 @@ type RemoteServer struct{
   Coordinator bool
 }
 
+type Daemon struct{
+  ServerDetails RemoteServer
+  hashtable     Hashtable
+}
+
 type RegisterReply struct {
   Coordinators     map[int64]RemoteServer
   Daemons          map[int64]RemoteServer
