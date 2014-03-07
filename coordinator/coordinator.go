@@ -3,12 +3,8 @@ package main
 import (
   "log"
   "flag"
-)
-
-
-const(
-  Daemon = iota
-  Coordinator
+  . "EDHT/utils"
+  . "EDHT/common"
 )
 
 
@@ -22,6 +18,24 @@ var (
   groupconnect bool
 )
 
+func InitLocalState(alocalAddress string, alocalPort string) {
+
+  // validate IP and port
+  if !ValidateIP(alocalAddress){
+    log.Panic("Error: invalid IP address: ", alocalAddress)
+  }
+
+
+  if !ValidatePort(alocalPort){
+    log.Panic("Error: invalid port: ", alocalPort)
+  }
+
+  localAddress = alocalAddress
+  localPort    = alocalPort
+
+  remoteServers = map[string]RemoteServer{}
+
+}
 
 func registerCLA(){
 
