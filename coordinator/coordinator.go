@@ -20,7 +20,7 @@ var (
   normalLog func(a ...interface{})
 )
 
-func InitLocalState(alocalAddress string, alocalPort string) {
+func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
 
   // validate IP and port
   if !ValidateIP(alocalAddress){
@@ -39,6 +39,15 @@ func InitLocalState(alocalAddress string, alocalPort string) {
   remoteDaemons = map[int64]RemoteServer{}
   pendingCommits = map[int64]RemoteServer{}
 
+
+  if !connect {
+
+    machine_id := GenMachineId()
+
+    id = GenId(machine_id,true)
+    remoteCoordinators[id] = RemoteServer{localAddress,localPort,id,true}
+
+  }
 }
 
 func registerCLA(){
@@ -63,7 +72,7 @@ func main() {
     log.Println("port:",port)
     log.Println("ip-address:",ip)
   }
-  InitLocalState(ip,port)
+  InitLocalState(ip,port,groupconnect)
 
   if(groupconnect) {
 

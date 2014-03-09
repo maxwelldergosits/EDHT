@@ -29,20 +29,23 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) err
 
 
 func preCommit(rs RemoteServer) int {
-  verboseLog("precommiting:",rs)
 
+  verboseLog("precommiting:",rs)
   pendingCommits[rs.ID] = rs
 
   return 1
 }
 
 func localCommit(rs RemoteServer) int {
+
   verboseLog("commiting:",rs)
+
   if rs.Coordinator {
     remoteCoordinators[rs.ID]=rs
   } else {
     remoteDaemons[rs.ID]=rs
   }
+
   delete(pendingCommits,rs.ID)
 
   return 1
@@ -62,6 +65,7 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
   done := make(chan bool)
   var num = 0
+
   //precommit to all nodes
   for _,v := range remoteCoordinators {
 
@@ -71,9 +75,7 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
       addr := v.Address+":"+v.Port
 
-      var commit = (propseRegisterRPC(&rs,addr) == 1)
-
-      done <- commit
+      done <- (propseRegisterRPC(&rs,addr) == 1)
 
     }(v)
 
@@ -90,7 +92,9 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     localCommit(rs)
 
     for _,v := range remoteCoordinators {
-      if v == rs {continue}
+
+      if v == rs || v.ID == id {num--; continue} // we shouldn't wait for a response from
+
       go func(v RemoteServer) {
 
         addr := v.Address+":"+v.Port
@@ -146,11 +150,13 @@ func AttachToGroup(groupAddress string, groupPort string) {
   if err != nil {
     log.Fatal("dialing:", err)
   }
+
   // make the rpc call
   err = client.Call("Coordinator.AttachRSToGroup", rs, &res)
   if err != nil {
     log.Fatal("attach error:", err)
   }
+
   remoteCoordinators = res.Coordinators
   remoteDaemons      = res.Daemons
   id = res.ID
