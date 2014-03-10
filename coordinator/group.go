@@ -3,7 +3,7 @@ package main
 import (
   "log"
   "net/rpc"
-  . "EDHT/common"
+  . "EDHT/common" // don't have to type common.{type}
   "EDHT/utils"
 )
 
@@ -52,6 +52,7 @@ func localCommit(rs RemoteServer) int {
 }
 
 func localAbort(rs RemoteServer) int {
+
   verboseLog("aborting:",rs)
   delete(pendingCommits,rs.ID)
   return 1
@@ -160,6 +161,7 @@ func AttachToGroup(groupAddress string, groupPort string) {
   remoteCoordinators = res.Coordinators
   remoteDaemons      = res.Daemons
   id = res.ID
-  verboseLog("id =",res.ID)
+  verboseLog("id:",res.ID)
+
 }
 

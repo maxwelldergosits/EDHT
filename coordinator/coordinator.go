@@ -15,6 +15,8 @@ var (
   groupPort string
   groupAddress string
   verbose bool
+  logDir string
+  dataDir string
   groupconnect bool
   verboseLog func(a ...interface{})
   normalLog func(a ...interface{})
@@ -58,6 +60,8 @@ func registerCLA(){
   flag.BoolVar(&groupconnect, "connect-to-group", false, "connect to an existing group of coordinators")
   flag.StringVar(&groupAddress, "group-address", "", "Address of any node in a group to connect to")
   flag.StringVar(&groupPort, "group-port", "", "Port of that the node in the group is on")
+  flag.StringVar(&logDir, "log-dir","","Directory output for log files (default is the current directory) directory must exist")
+  flag.StringVar(&dataDir, "data-dir","","Directory output for data files (default is the current directory) directory must exist")
 
 
   flag.Parse()
@@ -66,12 +70,13 @@ func registerCLA(){
 func main() {
 
   registerCLA()
-  normalLog,verboseLog = GenLogger(verbose,"")
+  normalLog,verboseLog = GenLogger(verbose,logDir)
 
-  if(verbose) {
-    log.Println("port:",port)
-    log.Println("ip-address:",ip)
-  }
+  normalLog("coordinator starting up")
+
+  verboseLog("port:",port)
+  verboseLog("ip-address:",ip)
+
   InitLocalState(ip,port,groupconnect)
 
   if(groupconnect) {
