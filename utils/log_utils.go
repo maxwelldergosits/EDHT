@@ -18,6 +18,9 @@ func GenLogger(verbose bool,prefix string) (printer func(a ...interface{}), verb
   if err != nil {
     log.Fatal(err)
   }
+  if (prefix == "") {
+    prefix = dir
+  }
   usr, _ := user.Current()
   homeDir := usr.HomeDir
   if prefix[:1] == "~" {
@@ -28,9 +31,6 @@ func GenLogger(verbose bool,prefix string) (printer func(a ...interface{}), verb
 
   var time = time.Now()
 
-  if (prefix == "") {
-    prefix = dir
-  }
   const RFC3339 = "2006-01-02T15:04:05Z07:00"
   var logFileName = prefix+"/"+time.Format(RFC3339)+".log"
   log.Println("log file:",logFileName)
