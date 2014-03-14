@@ -5,6 +5,7 @@ import (
   "flag"
   . "EDHT/utils"
   . "EDHT/common"
+  "EDHT/web_interface"
 )
 
 
@@ -84,6 +85,7 @@ func main() {
     AttachToGroup(groupAddress,groupPort)
 
   }
+  go web_interface.StartUp()
 
   startServer(ip,port)
 
