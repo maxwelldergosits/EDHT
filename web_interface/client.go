@@ -1,3 +1,31 @@
+/*
+Simple web interface for adding and retrieving key value pairs
+
+
+
+Useage:
+
+  There are two different web pages that are delivered.
+
+  <coordinator-ip>:<port>/put
+
+  This presents a web page for storing k-v pairs in the data base
+
+  <coordinator-ip>:<port>/get
+
+  This presents a web page for retrieving k-v pairs in the data base
+
+  These pages are just simple HTML forms around a very simple restful API
+
+  You can access these functions directly using
+
+
+  <coordinator-ip>:<port>/put/submit?key=<key>&value=<value>
+
+
+  <coordinator-ip>:<port>/get/submit?key=<key>
+
+*/
 package web_interface
 
 import (
