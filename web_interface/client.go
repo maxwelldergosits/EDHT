@@ -51,8 +51,8 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w,"Submitted: key:",key,"\n","value:",value)
 }
 
-func StartUp() {
-  log.Println("starting")
+func StartUp(verboseLog func(a... interface{})) {
+  verboseLog("starting web inteface")
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)

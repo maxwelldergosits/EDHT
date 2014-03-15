@@ -11,7 +11,6 @@ package main
 
 import (
   "log"
-  "flag"
   . "EDHT/utils"
   . "EDHT/common"
   "EDHT/web_interface"
@@ -22,7 +21,10 @@ import (
 var (
   port string
   ip   string
+  shards int
+  failures int
   groupPort string
+  disableLog bool
   groupAddress string
   verbose bool
   logDir string
@@ -62,25 +64,11 @@ func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
   }
 }
 
-func registerCLA(){
-
-  flag.StringVar(&port, "port", "1456","Port to bind the server to")
-  flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
-  flag.BoolVar(&verbose, "verbose", false, "verbose output")
-  flag.BoolVar(&groupconnect, "connect-to-group", false, "connect to an existing group of coordinators")
-  flag.StringVar(&groupAddress, "group-address", "", "Address of any node in a group to connect to")
-  flag.StringVar(&groupPort, "group-port", "", "Port of that the node in the group is on")
-  flag.StringVar(&logDir, "log-dir","","Directory output for log files (default is the current directory) directory must exist")
-  flag.StringVar(&dataDir, "data-dir","","Directory output for data files (default is the current directory) directory must exist")
-
-
-  flag.Parse()
-}
 
 func main() {
 
   registerCLA()
-  normalLog,verboseLog = GenLogger(verbose,logDir)
+  normalLog,verboseLog = GenLogger(verbose,logDir,disableLog)
 
   normalLog("coordinator starting up")
 
@@ -93,8 +81,15 @@ func main() {
 
     AttachToGroup(groupAddress,groupPort)
 
+  } else {
+
+      normalLog("creating group")
+      normalLog("waiting for",failures +1, "coordinators")
+      normalLog("waiting for",shards * (failures +1), "daemons")
+
   }
-  go web_interface.StartUp()
+
+  go web_interface.StartUp(verboseLog)
 
   startServer(ip,port)
 

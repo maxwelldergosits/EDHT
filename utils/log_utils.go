@@ -5,13 +5,14 @@ import (
   "log"
   "time"
   "io"
+  "io/ioutil"
   "os"
   "os/user"
   "strings"
   "path/filepath"
 )
 
-func GenLogger(verbose bool,prefix string) (printer func(a ...interface{}), verbosePrinter func(a ...interface{})) {
+func GenLogger(verbose bool,prefix string,disableLog bool) (printer func(a ...interface{}), verbosePrinter func(a ...interface{})) {
 
 
   dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -27,17 +28,22 @@ func GenLogger(verbose bool,prefix string) (printer func(a ...interface{}), verb
     prefix = strings.Replace(prefix, "~", homeDir, 1)
   }
 
-  var logFile *os.File
+  var logFile io.Writer
 
   var time = time.Now()
 
   const RFC3339 = "2006-01-02T15:04:05Z07:00"
   var logFileName = prefix+"/"+time.Format(RFC3339)+".log"
-  log.Println("log file:",logFileName)
 
-  logFile,_ = os.Create(logFileName)
+  if disableLog {
 
+    logFile = ioutil.Discard
+  } else {
+    log.Println("log file:",logFileName)
+    logFile,_ = os.Create(logFileName)
+  }
   normalWriter := io.MultiWriter(logFile,os.Stdout)
+
   var verboseWriter io.Writer
   if (verbose) {
     verboseWriter = io.MultiWriter(logFile,os.Stdout)
