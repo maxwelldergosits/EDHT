@@ -10,12 +10,12 @@ import (
 	"net/rpc"
 	"net"
 	"os"
-  . "EDHT/common"
 )
 
 func startServer(ip string, port string) {
 
-  reg := new(Hashtable)
+
+  reg := new(Daemon)
   rpc.Register(reg)
   rpc.HandleHTTP()
   l,e := net.Listen("tcp",ip+":"+port)

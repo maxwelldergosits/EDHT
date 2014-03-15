@@ -28,13 +28,3 @@ func GenMachineId() int64{
   return myfirstint
 }
 
-// returns mac address of local computer
-func GenMachineId() int64{
-
-  interfaces,_ := net.Interfaces()
-  buf := bytes.NewBuffer(interfaces[0].HardwareAddr) // b is []byte
-  myfirstint, _ := binary.ReadVarint(buf)
-
-  return myfirstint
-
-}

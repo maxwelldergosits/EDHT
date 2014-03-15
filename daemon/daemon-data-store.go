@@ -2,52 +2,44 @@ package main
 
 import (
 	"os"
-	"log"
-	"strconv"
+  "EDHT/utils"
 	"errors"
   . "EDHT/common"
 )
-
+type Daemon int
 //var hashtable Hashtable= Hashtable{0,make(map[string]string)} deprecated; each Daemon has it's own store now.
 
 
 //insert value in tuple into hashtable.
-func insert(pair DataPair){
-	hashtable.Store[pair.Key]= pair.Value
-	hashtable.Size++
+func insert(pair Tuple){
+	local_state.Hashtable.Store[pair.Key]= pair.Value
+	local_state.Hashtable.Size++
 }
 
 //return value corresponding to 'key'
 func lookup(key string) (string, error){
-	if value, in_store := dict[key]; in_store{
-    		return hashtable.Store[key], nil
-	}
+  if val, ok := local_state.Hashtable.Store[key];ok {
+    return val,nil
+  }
 	return "", errors.New("daemon lookup error: nonexistent key.")
 }
 
 /*Returns a pointer to a newly constructed Daemon object, with the specified address and port number.
 */
-func SpawnDaemon(address string, port string) *RemoteServer{
-	remote_server := RemoteServer{Address:address, Port:port, ID:0, Coordinator:false}
-	table := Hashtable{0, make(0, make(map[string]string))}
-	return &Daemon{ServerDetails:remote_server, hashtable:table}
+func SpawnDaemon(address string, port string) DaemonData{
+	remote_server := RemoteServer{Address:address, Port:port, ID:utils.GenMachineId(), Coordinator:false}
+	table := Hashtable{0, make(map[string]string)}
+	d := DaemonData{remote_server, table}
+  return d
 }
 
-/*Given the ip address and port for a known coordinator, will attempt to connect
- *to the coordinator with the provided ip address and port number.
- *TODO: test error condition with AttachToGroup
-*/
-func (t *Daemon) RegisterDaemon(coordinator_ip string, coordinator_port string) error{
-	return AttachToGroup(coordinator_ip, coordinator_port)
 
-}
-
-/*Given a DataPair struct, Put will associate the member "key" with member "value" in the daemon's data store.
+/*Given a Tuple struct, Put will associate the member "key" with member "value" in the daemon's data store.
  *Performing multiple puts with the same key but different values will result in the key being
  *associated with the most recent value. The function's return value
  *is non-nil if the storage is successful. The empty string is not accepted as a valid key and
  *will result in Put failure. */
-func (t *Daemon) Put(pair DataPair, reply *string) error {
+func (t *Daemon) Put(pair Tuple, reply *string) error {
 	if(pair.Value == "") {
 		return errors.New("daemon Put error: empty key")
 	}
@@ -71,10 +63,10 @@ func (t *Daemon) Get(key string, reply *string) error {
  *Argument arg is ignored, and reply is not used. Error is nil on success, non-nil on failure.
  */
 func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
-	keys := make([]string, len(t.Store))
+	keys := make([]string, local_state.Hashtable.Size)
 	i := 0
-	for key, _ := range t.Store{
-		keys[i] := key
+	for key, _ := range local_state.Hashtable.Store{
+		keys[i] = key
 	}
 	*reply = keys
 	return nil
@@ -94,7 +86,7 @@ func (t *Daemon) WriteToDisk(path string, reply *string) error{
 
 	defer f.Close()
 
-	for key, value := range t.Store{
+	for key, value := range local_state.Hashtable.Store{
 		_, err := f.WriteString(key + ", " + value)
 		if(err != nil){
 			return errors.New("WriteToDisk: WriteString error.")

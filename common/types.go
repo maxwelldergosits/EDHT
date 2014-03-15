@@ -7,24 +7,26 @@ type RemoteServer struct{
   Coordinator bool
 }
 
-type Daemon struct{
+type DaemonData struct{
   ServerDetails RemoteServer
-  hashtable     Hashtable
+  Hashtable     Hashtable
 }
 
 type RegisterReply struct {
   Coordinators     map[int64]RemoteServer
   Daemons          map[int64]RemoteServer
+  Failures         int
+  Shards           int
   ID               int64
 }
 
 
 type Tuple struct {
-        Key, Value string
+  Key   string
+  Value string
 }
 
 type Hashtable struct {
-	//can add metdata? (Karl)
 	Size int
 	Store map[string]string
 }

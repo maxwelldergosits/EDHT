@@ -51,12 +51,12 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w,"Submitted: key:",key,"\n","value:",value)
 }
 
-func StartUp(verboseLog func(a... interface{})) {
+func StartUp(verboseLog func(a... interface{}),port string) {
   verboseLog("starting web inteface")
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)
   http.HandleFunc("/get",gethandler)
   http.HandleFunc("/get/submit",getshandler)
-  log.Fatal(http.ListenAndServe(":8080", nil))
+  log.Fatal(http.ListenAndServe(":"+port, nil))
 }

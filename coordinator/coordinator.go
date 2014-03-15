@@ -21,15 +21,20 @@ import (
 var (
   port string
   ip   string
+
   shards int
   failures int
-  groupPort string
+
   disableLog bool
+  groupPort string
+
   groupAddress string
+  groupconnect bool
   verbose bool
+
   logDir string
   dataDir string
-  groupconnect bool
+
   verboseLog func(a ...interface{})
   normalLog func(a ...interface{})
 )
@@ -53,7 +58,6 @@ func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
   remoteDaemons = map[int64]RemoteServer{}
   pendingCommits = map[int64]RemoteServer{}
 
-}
 
   if !connect {
 
@@ -79,7 +83,6 @@ func main() {
   InitLocalState(ip,port,groupconnect)
 
   if(groupconnect) {
-
     AttachToGroup(groupAddress,groupPort)
 
   } else {
@@ -90,7 +93,7 @@ func main() {
 
   }
 
-  go web_interface.StartUp(verboseLog)
+  go web_interface.StartUp(verboseLog,port+"8")
 
   startServer(ip,port)
 
