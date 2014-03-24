@@ -16,7 +16,7 @@ type RegisterReply struct {
   Coordinators     map[int64]RemoteServer
   Daemons          map[int64]RemoteServer
   Failures         int
-  Shards           int
+  NShards           int
   ID               int64
 }
 
@@ -31,3 +31,8 @@ type Hashtable struct {
 	Store map[string]string
 }
 
+type Shard struct {
+  Start uint64
+  End uint64
+  Daemons map[int64]RemoteServer
+}

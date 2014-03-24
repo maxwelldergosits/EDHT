@@ -3,8 +3,8 @@ package main
 import (
   "log"
   "net/rpc"
-  . "EDHT/common"
   "EDHT/utils"
+ . "EDHT/common"
 )
 
 var (
@@ -156,7 +156,7 @@ func AttachToGroup(groupAddress string, groupPort string) {
   remoteCoordinators = res.Coordinators
   remoteDaemons      = res.Daemons
   failures           = res.Failures
-  shards             = res.Shards
+  shards             = res.NShards
   id                 = res.ID
 
   verboseLog("id:",res.ID)

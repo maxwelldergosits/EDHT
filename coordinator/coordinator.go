@@ -11,8 +11,8 @@ package main
 
 import (
   "log"
-  . "EDHT/utils"
   . "EDHT/common"
+  . "EDHT/utils"
   "EDHT/web_interface"
 )
 
