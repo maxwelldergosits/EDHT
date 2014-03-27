@@ -1,10 +1,9 @@
 package main
 
 import (
-  "log"
   . "EDHT/common"
+  "EDHT/common/group"
   "flag"
-  "net/rpc"
   "EDHT/utils"
 )
 var (
@@ -34,41 +33,21 @@ func registerCLA(){
 }
 
 
-func AttachToGroup(groupAddress string, groupPort string) {
-
-  var rs RemoteServer = RemoteServer{ip,port,utils.GenMachineId(),false}
-  var res RegisterReply
-
-  // start connection to remote Server
-  client, err := rpc.DialHTTP("tcp", groupAddress + ":" + groupPort)
-  if err != nil {
-    log.Fatal("dialing:", err)
-  }
-  // make the rpc call
-  err = client.Call("Coordinator.AttachRSToGroup", rs, &res)
-  if err != nil {
-    log.Fatal("attach error:", err)
-  }
-
-  id = res.ID
-  verboseLog("id:",res.ID)
-
-}
-
 
 func main() {
 
  registerCLA()
 
   local_state = SpawnDaemon(ip,port)
-
-  if(verbose) {
-    log.Println("port:",port)
-    log.Println("ip-address:",ip)
-  }
-
   normalLog,verboseLog = utils.GenLogger(verbose,"",true)
-  AttachToGroup(groupAddress,groupPort)
+
+    verboseLog("port:",port)
+    verboseLog("ip-address:",ip)
+
+
+  group.InitGroup(verboseLog,normalLog)
+
+  group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
   startServer(ip,port)
 
 }

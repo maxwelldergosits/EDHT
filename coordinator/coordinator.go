@@ -1,8 +1,17 @@
 /*
 
-Usage:
-
-
+Usage of coordinator:
+  -address="127.0.0.1": address to bind the server to
+  -connect-to-group=false: connect to an existing group of coordinators
+  -data-dir="": Directory output for data files (default is the current directory) directory must exist
+  -disable-log=true: Disable log file output
+  -failures=0: Number of failures tolerated
+  -group-address="": Address of any node in a group to connect to
+  -group-port="": Port of that the node in the group is on
+  -log-dir="": Directory output for log files (default is the current directory) directory must exist
+  -port="1456": Port to bind the server to
+  -shards=1: Number of "shards" of data
+  -verbose=false: verbose output
 
 
 
@@ -10,8 +19,7 @@ Usage:
 package main
 
 import (
-  "log"
-  . "EDHT/common"
+  "EDHT/common/group"
   . "EDHT/utils"
   "EDHT/web_interface"
 )
@@ -39,35 +47,6 @@ var (
   normalLog func(a ...interface{})
 )
 
-func InitLocalState(alocalAddress string, alocalPort string,connect bool) {
-
-  // validate IP and port
-  if !ValidateIP(alocalAddress){
-    log.Panic("Error: invalid IP address: ", alocalAddress)
-  }
-
-
-  if !ValidatePort(alocalPort){
-    log.Panic("Error: invalid port: ", alocalPort)
-  }
-
-  localAddress = alocalAddress
-  localPort    = alocalPort
-
-  remoteCoordinators = map[int64]RemoteServer{}
-  remoteDaemons = map[int64]RemoteServer{}
-  pendingCommits = map[int64]RemoteServer{}
-
-
-  if !connect {
-
-    machine_id := GenMachineId()
-
-    id = GenId(machine_id,true)
-    remoteCoordinators[id] = RemoteServer{localAddress,localPort,id,true}
-
-  }
-}
 
 
 func main() {
@@ -80,10 +59,10 @@ func main() {
   verboseLog("port:",port)
   verboseLog("ip-address:",ip)
 
-  InitLocalState(ip,port,groupconnect)
+  group.InitGroup(verboseLog,normalLog)
 
   if(groupconnect) {
-    AttachToGroup(groupAddress,groupPort)
+    group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
 
   } else {
 
@@ -91,11 +70,12 @@ func main() {
       normalLog("waiting for",failures +1, "coordinators")
       normalLog("waiting for",shards * (failures +1), "daemons")
 
+      group.CreateGroup(ip,port)
   }
 
   go web_interface.StartUp(verboseLog,port+"8")
 
-  startServer(ip,port)
+  group.CoordinatorStartServer(ip,port)
 
 }
 

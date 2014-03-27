@@ -1,4 +1,4 @@
-package main
+package group
 
 import (
   "log"
@@ -8,10 +8,10 @@ import (
   . "EDHT/common"
 )
 
-
 type Coordinator int
 
-func startServer(ip string, port string) {
+func CoordinatorStartServer(ip string, port string) {
+
 
   reg := new(Coordinator)
   rpc.Register(reg)
@@ -22,6 +22,13 @@ func startServer(ip string, port string) {
   }
   http.Serve(l, nil)
 
+}
+
+// this rpc call prompts reciever to add this new server to the group
+func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) error {
+  normalLog("rpc method AttachRSToGroup called")
+  *res = AttachRSToGroup_local(ns)
+  return nil
 }
 
 func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) int {
@@ -37,9 +44,6 @@ func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) int {
   args := ns
   var reply int
   err = client.Call(methodName, args, &reply)
-  if err != nil {
-    log.Fatal("arith error:", err)
-  }
 
   return reply
 

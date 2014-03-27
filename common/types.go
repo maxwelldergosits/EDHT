@@ -15,8 +15,6 @@ type DaemonData struct{
 type RegisterReply struct {
   Coordinators     map[int64]RemoteServer
   Daemons          map[int64]RemoteServer
-  Failures         int
-  NShards           int
   ID               int64
 }
 
