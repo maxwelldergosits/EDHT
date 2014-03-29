@@ -65,7 +65,7 @@ func getK(key string) (string,error) {
 }
 
 func tryTPC(shard *Shard, key string, value string) bool{
-  return false
+
 }
 
 func getValue(shard * Shard, key string) (string,error) {
