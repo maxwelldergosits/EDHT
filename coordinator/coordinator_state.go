@@ -14,9 +14,9 @@ import (
 
 type CoordinatorState struct {
 
-  Coordinators map[int64]RemoteServer
+  Coordinators map[uint64]RemoteServer
 
-  Daemons map[int64]RemoteServer
+  Daemons map[uint64]RemoteServer
 
   Shards map[int]Shard
 

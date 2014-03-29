@@ -3,7 +3,7 @@ package common
 type RemoteServer struct{
   Address     string
   Port        string
-  ID          int64
+  ID          uint64
   Coordinator bool
 }
 
@@ -13,9 +13,11 @@ type DaemonData struct{
 }
 
 type RegisterReply struct {
-  Coordinators     map[int64]RemoteServer
-  Daemons          map[int64]RemoteServer
-  ID               int64
+  Coordinators     map[uint64]RemoteServer
+  Daemons          map[uint64]RemoteServer
+  ID               uint64
+  Nshards          uint
+  Nfailures        uint
 }
 
 
@@ -32,5 +34,5 @@ type Hashtable struct {
 type Shard struct {
   Start uint64
   End uint64
-  Daemons map[int64]RemoteServer
+  Daemons map[uint64]bool
 }

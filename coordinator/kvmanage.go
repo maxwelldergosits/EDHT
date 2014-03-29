@@ -38,3 +38,37 @@ func kv_put(key string, value string, daemon RemoteServer) (error) {
 }
 
 
+func getShardForKey(key string) *Shard{
+
+  var n = conv(key)
+
+  for _,shard := range shards {
+    if shard.Start <= n && n <= shard.End {
+      return shard
+    }
+  }
+  return nil // This should never happen
+
+}
+
+
+func PutKV(key string, value string) bool{
+  shard := getShardForKey(key)
+  succ := tryTPC(shard,key,value)
+  return succ
+}
+
+
+func getK(key string) (string,error) {
+  shard := getShardForKey(key)
+  return getValue(shard,key)
+}
+
+func tryTPC(shard *Shard, key string, value string) bool{
+  return false
+}
+
+func getValue(shard * Shard, key string) (string,error) {
+  return "",nil
+}
+

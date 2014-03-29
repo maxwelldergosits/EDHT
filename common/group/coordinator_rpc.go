@@ -26,7 +26,6 @@ func CoordinatorStartServer(ip string, port string) {
 
 // this rpc call prompts reciever to add this new server to the group
 func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) error {
-  normalLog("rpc method AttachRSToGroup called")
   *res = AttachRSToGroup_local(ns)
   return nil
 }
@@ -61,7 +60,7 @@ func propseRegisterRPC(ns * RemoteServer, addr string) int {
 // RPC method//
 func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * int) error {
 
-  if preCommit(*ns)!=1 {
+  if !preCommit(*ns) {
     *res = 0 //**responding NO**//
   } else {
     *res = 1 //** responding YES**//
@@ -81,7 +80,7 @@ func registerRPC(ns * RemoteServer, addr string) int {
 // RPC method//
 func (t *Coordinator) Register(ns * RemoteServer, res * int) error{
 
-  *res = localCommit(*ns)
+  localCommit(*ns)
 
   return nil
 
@@ -92,14 +91,14 @@ func (t *Coordinator) Register(ns * RemoteServer, res * int) error{
 //****************//
 
 //RPC stub//
-func rollBackRegisterRPC(ns * RemoteServer, addr string) int{
+func RollBackRegisterRPC(ns * RemoteServer, addr string) int{
   return coordinatorRPCstub("Coordinator.RollbackRegister",ns,addr)
 }
 
 // RPC method//
 func (t* Coordinator) RollbackRegister(ns * RemoteServer, res * int) error {
 
-  *res = localAbort(*ns)
+  localAbort(*ns)
 
   return nil
 

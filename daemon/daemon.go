@@ -2,15 +2,17 @@ package main
 
 import (
   . "EDHT/common"
+  "fmt"
   "EDHT/common/group"
   "flag"
+  "os"
   "EDHT/utils"
 )
 var (
   port string
   ip   string
   groupPort string
-  id int64
+  id uint64
   groupAddress string
   verbose bool
   verboseLog func(a...interface{})
@@ -29,7 +31,17 @@ func registerCLA(){
   flag.StringVar(&groupAddress, "group-address", "", "Address of any node in a group to connect to")
   flag.StringVar(&groupPort, "group-port", "", "Port of that the node in the group is on")
 
+
   flag.Parse()
+
+  if groupAddress == "" || groupPort == "" {
+    fmt.Println("Usage:")
+    fmt.Println("")
+    fmt.Println("   Group Address and Group Port required")
+    fmt.Println("")
+    flag.PrintDefaults()
+    os.Exit(1)
+  }
 }
 
 
@@ -45,7 +57,7 @@ func main() {
     verboseLog("ip-address:",ip)
 
 
-  group.InitGroup(verboseLog,normalLog)
+  group.InitGroup(verboseLog,normalLog,nil)
 
   group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
   startServer(ip,port)

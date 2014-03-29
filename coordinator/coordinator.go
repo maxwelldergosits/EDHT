@@ -30,7 +30,7 @@ var (
   port string
   ip   string
 
-  shards int
+  nshards int
   failures int
 
   disableLog bool
@@ -59,18 +59,19 @@ func main() {
   verboseLog("port:",port)
   verboseLog("ip-address:",ip)
 
-  group.InitGroup(verboseLog,normalLog)
+  group.InitGroup(verboseLog,normalLog,newDaemon)
 
   if(groupconnect) {
-    group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
-
+    g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
+    MakeKeySpace(int(g.Nshards))
   } else {
 
       normalLog("creating group")
       normalLog("waiting for",failures +1, "coordinators")
-      normalLog("waiting for",shards * (failures +1), "daemons")
+      normalLog("waiting for",nshards * (failures +1), "daemons")
+      MakeKeySpace(nshards)
 
-      group.CreateGroup(ip,port)
+      group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }
 
   go web_interface.StartUp(verboseLog,port+"8")

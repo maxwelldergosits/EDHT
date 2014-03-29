@@ -3,7 +3,7 @@ import (
   "EDHT/utils"
  . "EDHT/common"
 )
-var pendingCommits      map[int64]RemoteServer
+var pendingCommits      map[uint64]RemoteServer
 
 // this method does the two phase commit for a new server
 func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
@@ -12,85 +12,66 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   machineid := rs.ID
   rs.ID = utils.GenId(machineid,rs.Coordinator)
 
-  done := make(chan bool)
-  var num = 0
-
-  //precommit to all nodes
-  for _,v := range defaultGroup.Coordinators {
-
-    if v.ID == id {continue} // we shouldn't wait for a response from ourselves
-    num++
-    // propose precommit
-    go func(v RemoteServer) {
-      addr := v.Address+":"+v.Port
-      done <- (propseRegisterRPC(&rs,addr) == 1)
-    }(v)
-  }
-
-  commit := true
-  //wait for respsonses
-  for i := 0; i < num; i++ {
-    commit = (commit && <-done)
-  }
-
-  if commit {
+  var lc = func(){
     localCommit(rs)
-    for _,v := range defaultGroup.Coordinators {
-      if v == rs || v.ID == id {num--; continue} // we shouldn't wait for a response from ourselves or the new server
-      go func(v RemoteServer) {
-        addr := v.Address+":"+v.Port
-        var commit = (registerRPC(&rs,addr) == 1)
-        done <- commit
-      }(v)
-    }
-  } else {
+  }
+  var la = func(){
     localAbort(rs)
-    for _,v := range defaultGroup.Coordinators {
-      if v == rs {continue}
-      go func(v RemoteServer) {
-        addr := v.Address+":"+v.Port
-        var commit = (registerRPC(&rs,addr) == 1)
-        done <- commit
-      }(v)
+  }
+
+  var lpc = func(){
+    preCommit(rs)
+  }
+
+  var rpc = func(v RemoteServer)(bool){
+    return (propseRegisterRPC(&rs,v.Address+":"+v.Port)==1)
+  }
+
+  var rc = func(v RemoteServer){
+    registerRPC(&rs,v.Address+":"+v.Port)
+  }
+
+  var ra = func(v RemoteServer){
+    RollBackRegisterRPC(&rs,v.Address+":"+v.Port)
+  }
+  var acceptors map[uint64]RemoteServer = make(map[uint64]RemoteServer)
+  for k,v := range defaultGroup.Coordinators {
+    acceptors[k] = v
+  }
+  t := utils.InitTPC(acceptors,id,lpc,lc,la,rpc,rc,ra)
+
+
+  if (t.Run()){
+    if rs.Coordinator {
+      return RegisterReply{defaultGroup.Coordinators,defaultGroup.Daemons,rs.ID,defaultGroup.Nshards,defaultGroup.Nfailures}
+    }else {
+      return RegisterReply{nil,nil,rs.ID,0,0}
     }
   }
-  for i := 0; i < num; i++ {
-    <-done
-  }
-  if rs.Coordinator {
-    return RegisterReply{defaultGroup.Coordinators,defaultGroup.Daemons,rs.ID}
-  }else {
-    return RegisterReply{nil,nil,rs.ID}
-  }
+  return RegisterReply{nil,nil,0,0,0}
 }
 
 
 
-func preCommit(rs RemoteServer) int {
-
+func preCommit(rs RemoteServer)bool{
   verboseLog("precommiting:",rs)
   pendingCommits[rs.ID] = rs
-
-  return 1
+  return true
 }
 
-func localCommit(rs RemoteServer) int {
-
+func localCommit(rs RemoteServer){
   verboseLog("commiting:",rs)
-
   if rs.Coordinator {
     defaultGroup.Coordinators[rs.ID]=rs
   } else {
     verboseLog("added new Daemon")
+    newDaemonCallback(rs.ID)
     defaultGroup.Daemons[rs.ID]=rs
   }
   delete(pendingCommits,rs.ID)
-
-  return 1
 }
 
-func localAbort(rs RemoteServer) int {
+func localAbort(rs RemoteServer) {
   verboseLog("aborting:",rs)
   delete(pendingCommits,rs.ID)
-  return 1
 }

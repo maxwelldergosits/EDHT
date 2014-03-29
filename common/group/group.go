@@ -10,32 +10,44 @@ import (
   )
 
 type Group struct {
-  Coordinators map[int64]RemoteServer
-  Daemons      map[int64]RemoteServer
+  Coordinators map[uint64]RemoteServer
+  Daemons      map[uint64]RemoteServer
+  Nshards      uint
+  Nfailures    uint
 }
 
 
 
 
 var defaultGroup Group
-var id int64
+var id uint64
 
 var verboseLog func(a...interface{})
 var normalLog func(a...interface{})
+var newDaemonCallback func(d uint64)
 
 //Creates a new group
 //Returns your id in the group
 
-func InitGroup(vl func(a...interface{}), nl func(a...interface{})) {
+func InitGroup(vl func(a...interface{}), nl func(a...interface{}),newDaemon func(d uint64)) {
 
   verboseLog = vl
   normalLog = nl
+  newDaemonCallback = newDaemon
 
 
-  pendingCommits = map[int64]RemoteServer{}
+  pendingCommits = map[uint64]RemoteServer{}
 }
 
-func CreateGroup(ip string, port string) int64 {
+func GetDaemon(d uint64) RemoteServer{
+  return defaultGroup.Daemons[d]
+}
+
+func GetCoordinator(d uint64) RemoteServer{
+  return defaultGroup.Coordinators[d]
+}
+
+func CreateGroup(ip string, port string,nshards uint, nfailures uint) uint64 {
 
   self := RemoteServer{
     Address:ip,
@@ -44,9 +56,11 @@ func CreateGroup(ip string, port string) int64 {
     Coordinator:true}
 
   defaultGroup = Group{
-    Coordinators:map[int64]RemoteServer{
+    Coordinators:map[uint64]RemoteServer{
       self.ID:self},
-    Daemons:map[int64]RemoteServer{}}
+    Daemons:map[uint64]RemoteServer{},
+    Nshards:nshards,
+    Nfailures:nfailures}
 
 
   id = self.ID
@@ -56,7 +70,7 @@ func CreateGroup(ip string, port string) int64 {
 //Joins group at <ip>:<port> as a Daemon
 //Handles rpc to coordinator specifed at <ip>:<port>
 //Returns your id in the group
-func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string) int64 {
+func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string) uint64 {
 
   me := RemoteServer{
     Address:localIP,
@@ -88,7 +102,7 @@ func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string)
 //Joins group at <ip>:<port> as a Coordinator
 //Handles rpc to coordinator specifed at <ip>:<port>
 //Returns your id in the group
-func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPort string) int64 {
+func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPort string) Group {
 
   var rs RemoteServer = RemoteServer{localAddress,localPort,GenMachineId(),true}
   var res RegisterReply
@@ -103,12 +117,15 @@ func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPor
   if err != nil {
     log.Fatal("attach error:", err)
   }
+  defaultGroup = Group{nil,nil,0,0}
   defaultGroup.Coordinators = res.Coordinators
   defaultGroup.Daemons      = res.Daemons
+  defaultGroup.Nshards      = res.Nshards
+  defaultGroup.Nfailures    = res.Nfailures
   id                        = res.ID
 
   verboseLog("id:",res.ID)
 
-  return id
+  return defaultGroup
 }
 

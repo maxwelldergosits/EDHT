@@ -7,9 +7,9 @@ import (
   "net"
   "time"
 )
-func GenId(machineid int64, coor bool) int64{
+func GenId(machineid uint64, coor bool) uint64{
 
-  timestamp := time.Now().Unix()
+  timestamp := uint64(time.Now().UnixNano())
   if coor {
     return timestamp << 22 | machineid << 1 | 1
   } else {
@@ -19,12 +19,12 @@ func GenId(machineid int64, coor bool) int64{
 }
 
 // returns mac address of local computer
-func GenMachineId() int64{
+func GenMachineId() uint64{
 
-  interfaces,_ := net.Interfaces()
-  buf := bytes.NewBuffer(interfaces[0].HardwareAddr) // b is []byte
+  en0,_ := net.InterfaceByName("en0")
+  buf := bytes.NewBuffer(en0.HardwareAddr) // b is []byte
   myfirstint, _ := binary.ReadVarint(buf)
 
-  return myfirstint
+  return uint64(myfirstint)
 }
 
