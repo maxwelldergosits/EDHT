@@ -74,7 +74,7 @@ func main() {
       group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }
 
-  go web_interface.StartUp(verboseLog,port+"8")
+  go web_interface.StartUp(verboseLog,port+"8",GetK,PutKV)
 
   group.CoordinatorStartServer(ip,port)
 

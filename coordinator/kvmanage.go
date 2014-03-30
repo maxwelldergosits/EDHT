@@ -1,42 +1,12 @@
 package main
 
 import(
-  "net/rpc"
   . "EDHT/common"
-  "log"
+  "EDHT/common/rpc_stubs"
+  "EDHT/utils"
+  "EDHT/common/group"
+  "errors"
 )
-
-func kv_get(key string, daemon RemoteServer) (string) {
-
-  client, err :=rpc.DialHTTP("tcp",daemon.Address+":"+daemon.Port)
-  if err != nil {
-    log.Fatal("dialing error:",err)
-  }
-
-  var reply string
-  err = client.Call("Daemon.Get",key,&reply)
-  if err != nil {
-    log.Fatal("calling error:",err)
-  }
-  return reply
-}
-
-
-func kv_put(key string, value string, daemon RemoteServer) (error) {
-
-  client, err :=rpc.DialHTTP("tcp",daemon.Address+":"+daemon.Port)
-  if err != nil {
-    log.Fatal("dialing error:",err)
-  }
-  var args = Tuple{key,value}
-  var reply string
-  err = client.Call("Daemon.Put",args,&reply)
-  if err != nil {
-    log.Fatal("calling error:",err)
-  }
-  return err
-}
-
 
 func getShardForKey(key string) *Shard{
 
@@ -59,16 +29,53 @@ func PutKV(key string, value string) bool{
 }
 
 
-func getK(key string) (string,error) {
+func GetK(key string) (string,error) {
   shard := getShardForKey(key)
   return getValue(shard,key)
 }
 
 func tryTPC(shard *Shard, key string, value string) bool{
 
+  noop := func() {}
+  rc   := func(v RemoteServer) {
+    rpc_stubs.CommitDaemonRPC(key,v)
+  }
+  ra  := func(v RemoteServer) {
+    rpc_stubs.AbortDaemonRPC(key,v)
+  }
+  rpc := func(v RemoteServer)(bool) {
+    succ,err := rpc_stubs.PreCommitDaemonRPC(key,value,v)
+    return (succ || err!=nil)
+  }
+
+  id := group.GetLocalID()
+
+  acceptors := make(map[uint64]RemoteServer)
+  for k,_ := range shard.Daemons {
+    acceptors[k] = group.GetDaemon(k)
+  }
+  tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra)
+  return tpc.Run()
 }
 
 func getValue(shard * Shard, key string) (string,error) {
-  return "",nil
+  time := utils.GetTimeNano()
+  d := int(time % uint64(len(shard.Daemons)))
+
+  i := 0
+  for k,_ := range shard.Daemons {
+    if i==d {
+      rs := group.GetDaemon(k)
+      rep, err := rpc_stubs.GetKeyDaemonRPC(key,rs)
+      if err != nil {
+        return "",err
+      } else {
+        return rep,nil
+      }
+    } else {
+      i++
+    }
+  }
+  return "",errors.New("No key found")
 }
 

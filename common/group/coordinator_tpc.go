@@ -2,6 +2,7 @@ package group
 import (
   "EDHT/utils"
  . "EDHT/common"
+  "EDHT/common/rpc_stubs"
 )
 var pendingCommits      map[uint64]RemoteServer
 
@@ -24,15 +25,15 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   }
 
   var rpc = func(v RemoteServer)(bool){
-    return (propseRegisterRPC(&rs,v.Address+":"+v.Port)==1)
+    return (rpc_stubs.PropseRegisterRPC(&rs,v.Address+":"+v.Port)==1)
   }
 
   var rc = func(v RemoteServer){
-    registerRPC(&rs,v.Address+":"+v.Port)
+    rpc_stubs.RegisterRPC(&rs,v.Address+":"+v.Port)
   }
 
   var ra = func(v RemoteServer){
-    RollBackRegisterRPC(&rs,v.Address+":"+v.Port)
+    rpc_stubs.RollBackRegisterRPC(&rs,v.Address+":"+v.Port)
   }
   var acceptors map[uint64]RemoteServer = make(map[uint64]RemoteServer)
   for k,v := range defaultGroup.Coordinators {

@@ -5,8 +5,7 @@ package group
 import (
   . "EDHT/common"
   . "EDHT/utils"
-  "net/rpc"
-  "log"
+  "EDHT/common/rpc_stubs"
   )
 
 type Group struct {
@@ -47,6 +46,10 @@ func GetCoordinator(d uint64) RemoteServer{
   return defaultGroup.Coordinators[d]
 }
 
+func GetLocalID() uint64 {
+  return id
+}
+
 func CreateGroup(ip string, port string,nshards uint, nfailures uint) uint64 {
 
   self := RemoteServer{
@@ -81,16 +84,7 @@ func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string)
 
   var res RegisterReply
 
-  // start connection to remote Server
-  client, err := rpc.DialHTTP("tcp", ip + ":" + port)
-  if err != nil {
-    log.Fatal("dialing:", err)
-  }
-  // make the rpc call
-  err = client.Call("Coordinator.AttachRSToGroup", me, &res)
-  if err != nil {
-    log.Fatal("attach error:", err)
-  }
+  res = rpc_stubs.AttachToGroupRPC(me,ip+":"+port)
 
   id := res.ID
   verboseLog("id:",res.ID)
@@ -107,16 +101,8 @@ func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPor
   var rs RemoteServer = RemoteServer{localAddress,localPort,GenMachineId(),true}
   var res RegisterReply
 
-  // start connection to remote Server
-  client, err := rpc.DialHTTP("tcp", ip + ":" + port)
-  if err != nil {
-    log.Fatal("dialing:", err)
-  }
-  // make the rpc call
-  err = client.Call("Coordinator.AttachRSToGroup", rs, &res)
-  if err != nil {
-    log.Fatal("attach error:", err)
-  }
+  res = rpc_stubs.AttachToGroupRPC(rs,ip+":"+port)
+
   defaultGroup = Group{nil,nil,0,0}
   defaultGroup.Coordinators = res.Coordinators
   defaultGroup.Daemons      = res.Daemons

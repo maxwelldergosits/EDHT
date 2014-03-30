@@ -1,9 +1,14 @@
-/* 
+/*
 
 This files is all rpc wrappers for each daemon method.
 
 */
 package main
+
+import (
+  . "EDHT/common"
+  "errors"
+)
 
 /*Given a Tuple struct, Put will associate the member "key" with member "value" in the daemon's data store.
  *Performing multiple puts with the same key but different values will result in the key being

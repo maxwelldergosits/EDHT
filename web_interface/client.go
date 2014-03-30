@@ -34,12 +34,23 @@ import (
   "fmt"
 )
 
+var (
+  getF func(key string) (string,error)
+  putF func(key string,value string) (bool)
+  verboseLog func(a... interface{})
+)
+
 func gethandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, getForm)
 }
 func getshandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Printf(r.FormValue("key"))
-    fmt.Fprintf(w,"<put value here>")
+
+    key:=r.FormValue("key")
+    value,err := getF(key)
+    if err != nil {
+      value = "error"
+    }
+    fmt.Fprintf(w,"key:",key,"value=",value)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +59,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func shandler(w http.ResponseWriter, r *http.Request) {
     key:= r.FormValue("key")
     value:= r.FormValue("value")
+    putF(key,value)
     fmt.Fprintf(w,"Submitted: key:",key,"\n","value:",value)
 }
 
-func StartUp(verboseLog func(a... interface{}),port string) {
+func StartUp(verbose func(a... interface{}),port string, get func(key string)(string,error), put func(key string, value string) (bool)) {
+  verboseLog = verbose
+  getF = get
+  putF = put
   verboseLog("starting web inteface")
 
   http.HandleFunc("/put",handler)

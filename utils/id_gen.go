@@ -7,6 +7,11 @@ import (
   "net"
   "time"
 )
+
+func GetTimeNano() uint64 {
+  return uint64(time.Now().UnixNano())
+}
+
 func GenId(machineid uint64, coor bool) uint64{
 
   timestamp := uint64(time.Now().UnixNano())
@@ -27,4 +32,5 @@ func GenMachineId() uint64{
 
   return uint64(myfirstint)
 }
+
 

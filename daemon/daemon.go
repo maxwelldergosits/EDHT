@@ -56,7 +56,7 @@ func main() {
     verboseLog("port:",port)
     verboseLog("ip-address:",ip)
 
-
+  InitTPC()
   group.InitGroup(verboseLog,normalLog,nil)
 
   group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
