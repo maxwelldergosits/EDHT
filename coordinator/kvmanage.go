@@ -43,9 +43,9 @@ func tryTPC(shard *Shard, key string, value string) bool{
   ra  := func(v RemoteServer) {
     rpc_stubs.AbortDaemonRPC(key,v)
   }
-  rpc := func(v RemoteServer)(bool) {
+  rpc := func(v RemoteServer)(bool,error) {
     succ,err := rpc_stubs.PreCommitDaemonRPC(key,value,v)
-    return (succ || err!=nil)
+    return succ,err
   }
 
   id := group.GetLocalID()
@@ -54,7 +54,12 @@ func tryTPC(shard *Shard, key string, value string) bool{
   for k,_ := range shard.Daemons {
     acceptors[k] = group.GetDaemon(k)
   }
-  tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra)
+
+  var failure = func(v RemoteServer) {
+    group.DeleteDaemon(v.ID)
+    delete(shard.Daemons,v.ID)
+  }
+  tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure)
   return tpc.Run()
 }
 

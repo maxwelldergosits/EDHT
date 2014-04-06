@@ -34,13 +34,9 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) err
 
 
 // RPC method//
-func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * int) error {
+func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * bool) error {
 
-  if !preCommit(*ns) {
-    *res = 0 //**responding NO**//
-  } else {
-    *res = 1 //** responding YES**//
-  }
+  *res = preCommit(*ns)
   return nil
 }
 
@@ -50,9 +46,10 @@ func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * int) error {
 
 
 // RPC method//
-func (t *Coordinator) Register(ns * RemoteServer, res * int) error{
+func (t *Coordinator) Register(ns * RemoteServer, res * bool) error{
 
   localCommit(*ns)
+  *res = true
 
   return nil
 
@@ -63,10 +60,10 @@ func (t *Coordinator) Register(ns * RemoteServer, res * int) error{
 //****************//
 
 // RPC method//
-func (t* Coordinator) RollbackRegister(ns * RemoteServer, res * int) error {
+func (t* Coordinator) RollbackRegister(ns * RemoteServer, res * bool) error {
 
   localAbort(*ns)
-
+  *res = true
   return nil
 
 }

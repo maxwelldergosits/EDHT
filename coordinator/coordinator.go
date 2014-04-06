@@ -22,6 +22,7 @@ import (
   "EDHT/common/group"
   . "EDHT/utils"
   "EDHT/web_interface"
+  "os"
 )
 
 
@@ -63,6 +64,10 @@ func main() {
 
   if(groupconnect) {
     g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
+    if group.GetLocalID() == 0 {
+      normalLog("Couldn't join group shutting down")
+      os.Exit(1)
+    }
     MakeKeySpace(int(g.Nshards))
   } else {
 

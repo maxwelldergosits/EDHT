@@ -4,34 +4,34 @@ import (
   "log"
   "net/rpc"
 )
-func RollBackRegisterRPC(ns * RemoteServer, addr string) int{
+func RollBackRegisterRPC(ns * RemoteServer, addr string) (bool,error){
   return coordinatorRPCstub("Coordinator.RollbackRegister",ns,addr)
 }
 
 //RPC stub//
-func RegisterRPC(ns * RemoteServer, addr string) int {
+func RegisterRPC(ns * RemoteServer, addr string) (bool,error) {
   return coordinatorRPCstub("Coordinator.Register",ns,addr)
 }
 
 //RPC stub//
-func PropseRegisterRPC(ns * RemoteServer, addr string) int {
+func PropseRegisterRPC(ns * RemoteServer, addr string) (bool,error) {
   return coordinatorRPCstub("Coordinator.ProposeRegister",ns,addr)
 }
 
-func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) int {
+func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) (bool,error) {
 
   // connect to client // TODO: make a connection caching service that will create
   // a connection or recycle an old one.
   client, err := rpc.DialHTTP("tcp", addr)
   if err != nil {
-  log.Fatal("dialing:", err)
+    return false,err
   }
   // Synchronous call
   args := ns
-  var reply int
+  var reply bool
   err = client.Call(methodName, args, &reply)
 
-  return reply
+  return reply,err
 
 }
 

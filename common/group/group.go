@@ -46,6 +46,15 @@ func GetCoordinator(d uint64) RemoteServer{
   return defaultGroup.Coordinators[d]
 }
 
+func DeleteDaemon(d uint64) {
+  verboseLog("Deleting Coordinator",d)
+  delete(defaultGroup.Daemons,d)
+}
+func DeleteCoordinator(d uint64) {
+  verboseLog("Deleting Coordinator",d)
+  delete(defaultGroup.Coordinators,d)
+}
+
 func GetLocalID() uint64 {
   return id
 }

@@ -21,15 +21,18 @@ type TwoPhaseCommit struct {
   localCommit func()
   localAbort func()
 
-  remotePreCommit func(rs RemoteServer) (bool)
+  remotePreCommit func(rs RemoteServer) (bool,error)
   remoteCommit    func(rs RemoteServer)
   remoteAbort     func(rs RemoteServer)
+
+  failure         func(rs RemoteServer)
 
 }
 
 func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
               localPreCommit func(), localCommit func(), localAbort func(),
-              remotePreCommit func(rs RemoteServer)(bool), remoteCommit func(rs RemoteServer), remoteAbort func(rs RemoteServer)) (TwoPhaseCommit) {
+              remotePreCommit func(rs RemoteServer)(bool,error), remoteCommit func(rs RemoteServer),
+              remoteAbort func(rs RemoteServer), failure func(rs RemoteServer)) (TwoPhaseCommit) {
 
 
   return TwoPhaseCommit{
@@ -41,7 +44,8 @@ func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
       localAbort,
       remotePreCommit,
       remoteCommit,
-      remoteAbort}
+      remoteAbort,
+      failure}
 
 
 }
@@ -58,7 +62,14 @@ func (t * TwoPhaseCommit) Run() (bool){
     if k == t.id {continue}
     n++
     go func(v RemoteServer) {
-      done <- t.remotePreCommit(v)
+      succ, err := t.remotePreCommit(v)
+      if err != nil {
+        t.failure(v)
+        delete(t.acceptors,v.ID)
+        done <- false
+      } else {
+        done <- succ
+      }
     }(v)
   }
 

@@ -24,8 +24,8 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     preCommit(rs)
   }
 
-  var rpc = func(v RemoteServer)(bool){
-    return (rpc_stubs.PropseRegisterRPC(&rs,v.Address+":"+v.Port)==1)
+  var rpc = func(v RemoteServer)(bool,error){
+    return rpc_stubs.PropseRegisterRPC(&rs,v.Address+":"+v.Port)
   }
 
   var rc = func(v RemoteServer){
@@ -39,7 +39,11 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   for k,v := range defaultGroup.Coordinators {
     acceptors[k] = v
   }
-  t := utils.InitTPC(acceptors,id,lpc,lc,la,rpc,rc,ra)
+
+  var failure = func(rs RemoteServer) {
+    DeleteCoordinator(rs.ID)
+  }
+  t := utils.InitTPC(acceptors,id,lpc,lc,la,rpc,rc,ra,failure)
 
 
   if (t.Run()){

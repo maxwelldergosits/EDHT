@@ -20,5 +20,4 @@ type CoordinatorState struct {
 
   Shards map[int]Shard
 
-  
 }

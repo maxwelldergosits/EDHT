@@ -59,7 +59,11 @@ func main() {
   InitTPC()
   group.InitGroup(verboseLog,normalLog,nil)
 
-  group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
+  id := group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
+  if (id == 0) {
+    normalLog("Couldn't join group, Exiting")
+    os.Exit(1)
+  }
   startServer(ip,port)
 
 }
