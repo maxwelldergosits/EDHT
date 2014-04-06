@@ -50,7 +50,7 @@ func getshandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
       value = "error"
     }
-    fmt.Fprintf(w,"key:",key,"value=",value)
+    fmt.Fprintf(w,"key: %s \nvalue: %s\n",key,value)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -59,8 +59,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func shandler(w http.ResponseWriter, r *http.Request) {
     key:= r.FormValue("key")
     value:= r.FormValue("value")
-    putF(key,value)
+    if (putF(key,value)) {
     fmt.Fprintf(w,"Submitted: key:",key,"\n","value:",value)
+    } else {
+    fmt.Fprintf(w,"Error: was not able to submit key:%s\n",key)
+    }
 }
 
 func StartUp(verbose func(a... interface{}),port string, get func(key string)(string,error), put func(key string, value string) (bool)) {

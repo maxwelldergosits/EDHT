@@ -58,6 +58,12 @@ func DeleteCoordinator(d uint64) {
 func GetLocalID() uint64 {
   return id
 }
+func GetNFailures() uint {
+  return defaultGroup.Nfailures
+}
+func GetNShards() uint {
+  return defaultGroup.Nshards
+}
 
 func CreateGroup(ip string, port string,nshards uint, nfailures uint) uint64 {
 

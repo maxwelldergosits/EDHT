@@ -24,6 +24,10 @@ func getShardForKey(key string) *Shard{
 
 func PutKV(key string, value string) bool{
   shard := getShardForKey(key)
+  nD := uint(len(shard.Daemons))
+  if (nD < group.GetNFailures() + 1) {
+    return false
+  }
   succ := tryTPC(shard,key,value)
   return succ
 }
@@ -59,6 +63,7 @@ func tryTPC(shard *Shard, key string, value string) bool{
     group.DeleteDaemon(v.ID)
     delete(shard.Daemons,v.ID)
   }
+
   tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure)
   return tpc.Run()
 }
