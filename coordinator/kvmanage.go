@@ -22,15 +22,17 @@ func getShardForKey(key string) *Shard{
 }
 
 
-func PutKV(key string, value string) bool{
+func PutKV(key string, value string) (bool,string){
   shard := getShardForKey(key)
   nD := uint(len(shard.Daemons))
   if (nD < group.GetNFailures() + 1) {
-    return false
+    return false,""
   }
-  succ := tryTPC(shard,key,value)
-  return succ
+  succ,info := tryTPC(shard,key,value)
+  return succ,info["ov"] // returns the old value of the key "" if there was no key
 }
+
+
 
 
 func GetK(key string) (string,error) {
@@ -38,14 +40,24 @@ func GetK(key string) (string,error) {
   return getValue(shard,key)
 }
 
-func tryTPC(shard *Shard, key string, value string) bool{
+func tryTPC(shard *Shard, key string, value string) (bool,map[string]string){
 
   noop := func() {}
-  rc   := func(v RemoteServer) {
-    rpc_stubs.CommitDaemonRPC(key,v)
+  rc   := func(v RemoteServer)map[string]string {
+    info, err := rpc_stubs.CommitDaemonRPC(key,v)
+    if (err == nil) {
+      return info
+    } else {
+      return nil
+    }
   }
-  ra  := func(v RemoteServer) {
-    rpc_stubs.AbortDaemonRPC(key,v)
+  ra  := func(v RemoteServer)map[string]string {
+    info, err := rpc_stubs.AbortDaemonRPC(key,v)
+    if (err != nil) {
+      return info
+    } else {
+      return nil
+    }
   }
   rpc := func(v RemoteServer)(bool,error) {
     succ,err := rpc_stubs.PreCommitDaemonRPC(key,value,v)

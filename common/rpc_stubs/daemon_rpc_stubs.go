@@ -20,30 +20,38 @@ func PreCommitDaemonRPC(key string, value string, rs RemoteServer) (bool,error) 
 
 }
 
-func CommitDaemonRPC(key string, rs RemoteServer) error {
+func CommitDaemonRPC(key string, rs RemoteServer)(map[string]string,error) {
 
   client, err := utils.MakeConnection(rs)
   if err != nil {
-    return errors.New("dialing error:"+err.Error())
+    return nil,errors.New("dialing error:"+err.Error())
   }
 
-  var reply bool
+  var reply map[string]string
   err = client.Call("Daemon.Commit",key,&reply)
-  return err
+  if err != nil{
+    return nil,err
+  } else {
+    return reply,nil
+  }
 
 }
 
 
-func AbortDaemonRPC(key string,rs RemoteServer) error{
+func AbortDaemonRPC(key string,rs RemoteServer) (map[string]string,error){
 
   client, err := utils.MakeConnection(rs)
   if err != nil {
-    return errors.New("dialing error:"+err.Error())
+    return nil,errors.New("dialing error:"+err.Error())
   }
 
-  var reply bool
+  var reply map[string]string
   err = client.Call("Daemon.Abort",key,&reply)
-  return err
+  if err != nil{
+    return nil,err
+  } else {
+    return reply,nil
+  }
 
 }
 

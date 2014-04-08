@@ -22,8 +22,8 @@ type TwoPhaseCommit struct {
   localAbort func()
 
   remotePreCommit func(rs RemoteServer) (bool,error)
-  remoteCommit    func(rs RemoteServer)
-  remoteAbort     func(rs RemoteServer)
+  remoteCommit    func(rs RemoteServer)map[string]string
+  remoteAbort     func(rs RemoteServer)map[string]string
 
   failure         func(rs RemoteServer)
 
@@ -31,8 +31,8 @@ type TwoPhaseCommit struct {
 
 func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
               localPreCommit func(), localCommit func(), localAbort func(),
-              remotePreCommit func(rs RemoteServer)(bool,error), remoteCommit func(rs RemoteServer),
-              remoteAbort func(rs RemoteServer), failure func(rs RemoteServer)) (TwoPhaseCommit) {
+              remotePreCommit func(rs RemoteServer)(bool,error), remoteCommit func(rs RemoteServer)map[string]string,
+              remoteAbort func(rs RemoteServer)map[string]string, failure func(rs RemoteServer)) (TwoPhaseCommit) {
 
 
   return TwoPhaseCommit{
@@ -50,7 +50,7 @@ func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
 
 }
 
-func (t * TwoPhaseCommit) Run() (bool){
+func (t * TwoPhaseCommit) Run() (bool,map[string]string){
 
   t.localPreCommit()
 
@@ -80,7 +80,8 @@ func (t * TwoPhaseCommit) Run() (bool){
   }
   n = 0 // reset n for the next round
 
-  var action func(rs RemoteServer)
+
+  var action func(rs RemoteServer)map[string]string
   if (doCommit) {
     t.localCommit()
     action = t.remoteCommit
@@ -89,11 +90,13 @@ func (t * TwoPhaseCommit) Run() (bool){
     action = t.remoteAbort
   }
 
+  var ret map[string]string
+
   for k,v := range t.acceptors {
     if (k == t.id) {continue}
     n++
     go func(v RemoteServer){
-      action(v)
+      ret = action(v)
       done <- false//value doesn't matter
     }(v)
   }
@@ -101,5 +104,5 @@ func (t * TwoPhaseCommit) Run() (bool){
   for i:=0; i<n;i++ {
     <-done
   }
-  return doCommit
+  return doCommit,ret
 }

@@ -19,7 +19,7 @@ func preCommit(key string, value string) bool {
   }
 }
 
-func commit(key string) {
+func commit(key string) string{
 
   t := Tuple{key,pendingCommmits[key]}
 
@@ -38,6 +38,7 @@ func commit(key string) {
   addbytes(nbs)
 
   insert(t)
+  return ov
 }
 
 func abort(key string) {
@@ -54,12 +55,17 @@ func (t* Daemon) PreCommit(pair Tuple, reply * bool) error{
   return nil
 }
 
-func (t * Daemon) Commit(key string, reply *bool) (error){
-  commit(key)
+func (t * Daemon) Commit(key string, reply *map[string]string) (error){
+  ov := commit(key)
+  ret := make(map[string]string)
+  ret["ov"] = ov
+  normalLog("ov:",ov)
+  *reply = ret
   return nil
 }
 
-func (t * Daemon) Abort(key string, reply *bool) (error){
+func (t * Daemon) Abort(key string, reply *map[string]string) (error){
+  *reply = nil
   abort(key)
   return nil
 }

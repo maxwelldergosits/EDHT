@@ -60,7 +60,7 @@ func main() {
   verboseLog("port:",port)
   verboseLog("ip-address:",ip)
 
-  group.InitGroup(verboseLog,normalLog,newDaemon)
+  group.InitGroup(verboseLog,normalLog,NewDaemon)
 
   if(groupconnect) {
     g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)

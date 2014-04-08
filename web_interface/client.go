@@ -36,7 +36,7 @@ import (
 
 var (
   getF func(key string) (string,error)
-  putF func(key string,value string) (bool)
+  putF func(key string,value string) (bool,string)
   verboseLog func(a... interface{})
 )
 
@@ -59,14 +59,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func shandler(w http.ResponseWriter, r *http.Request) {
     key:= r.FormValue("key")
     value:= r.FormValue("value")
-    if (putF(key,value)) {
-    fmt.Fprintf(w,"Submitted: key:",key,"\n","value:",value)
+    succ, ov := putF(key,value)
+    if succ {
+      fmt.Fprintf(w,"Submitted key:%s value:%s oldvalue:%s",key,value,ov)
+      w.Header().Set("suc","true")
+      w.Header().Set("key",key)
+      w.Header().Set("value",value)
+      w.Header().Set("value",ov)
     } else {
-    fmt.Fprintf(w,"Error: was not able to submit key:%s\n",key)
+      fmt.Fprintf(w,"Error: was not able to submit key:%s\n",key)
+      w.Header().Set("suc","false")
     }
 }
 
-func StartUp(verbose func(a... interface{}),port string, get func(key string)(string,error), put func(key string, value string) (bool)) {
+func StartUp(verbose func(a... interface{}),port string, get func(key string)(string,error), put func(key string, value string) (bool,string)) {
   verboseLog = verbose
   getF = get
   putF = put
