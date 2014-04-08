@@ -24,6 +24,7 @@ func MakeKeySpace(n int) map[int]*Shard {
   return shards_map
 }
 
+// general purpose hash function for distributing nodes into the shards
 func djb2(n uint64) uint64{
 
   var hash uint64= 5381
@@ -44,8 +45,7 @@ func djb2(n uint64) uint64{
   return hash;
 }
 
-
-
+// return the integer representation of a string
 func conv(key string) uint64 {
   var n uint64
   b := []byte(key)
@@ -61,10 +61,12 @@ func conv(key string) uint64 {
   return n
 }
 
-
-
-func newDaemon(id uint64) {
+// function that gets called when a new daemon is commited to the system.
+// Argument : id of the daemon
+func NewDaemon(id uint64) {
   slot := int(djb2(id) % uint64(len(shards)))
   normalLog("daemon", id, "added to shard",slot)
   shards[slot].Daemons[id]= true
 }
+
+
