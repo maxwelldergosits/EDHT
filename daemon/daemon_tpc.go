@@ -20,7 +20,23 @@ func preCommit(key string, value string) bool {
 }
 
 func commit(key string) {
+
   t := Tuple{key,pendingCommmits[key]}
+
+  nbs := 0
+  ov, err := lookup(key)
+
+
+// update the stats on number of keys and data
+  if ov != "" || err != nil {
+    addkey(1)
+    nbs += len(key)
+  } else {
+    nbs -= (len(ov))
+  }
+  nbs += len(t.Value)
+  addbytes(nbs)
+
   insert(t)
 }
 

@@ -47,4 +47,16 @@ func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
 	return nil
 }
 
-
+// arg = 1 if you want the number of keys
+// arg = 2 if you want the number of bytes
+func (t * Daemon) GetInfo(arg uint, reply * uint) error {
+  switch arg {
+    case 1:
+      *reply = NKeys()
+      return nil
+    case 2:
+      *reply = NBytes()
+      return nil
+  }
+  return errors.New("Invalid Parameter")
+}
