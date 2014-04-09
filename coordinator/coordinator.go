@@ -20,9 +20,9 @@ package main
 
 import (
   "EDHT/common/group"
-  . "EDHT/utils"
   "EDHT/web_interface"
   "os"
+  "mlog"
 )
 
 
@@ -44,8 +44,7 @@ var (
   logDir string
   dataDir string
 
-  verboseLog func(a ...interface{})
-  normalLog func(a ...interface{})
+  ml mlog.MLog
 )
 
 
@@ -53,33 +52,33 @@ var (
 func main() {
 
   registerCLA()
-  normalLog,verboseLog = GenLogger(verbose,logDir,disableLog)
+  ml = mlog.Create([]string{},"",true,verbose)
 
-  normalLog("coordinator starting up")
+  ml.NPrintln("coordinator starting up")
 
-  verboseLog("port:",port)
-  verboseLog("ip-address:",ip)
+  ml.VPrintln("debug","port:",port)
+  ml.VPrintln("debug","ip-address:",ip)
 
-  group.InitGroup(verboseLog,normalLog,NewDaemon)
+  group.InitGroup(ml,NewDaemon)
 
   if(groupconnect) {
     g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
     if group.GetLocalID() == 0 {
-      normalLog("Couldn't join group shutting down")
+      ml.NPrintln("Couldn't join group shutting down")
       os.Exit(1)
     }
     MakeKeySpace(int(g.Nshards))
   } else {
 
-      normalLog("creating group")
-      normalLog("waiting for",failures +1, "coordinators")
-      normalLog("waiting for",nshards * (failures +1), "daemons")
+      ml.NPrintln("creating group")
+      ml.NPrintln("waiting for",failures +1, "coordinators")
+      ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
       MakeKeySpace(nshards)
 
       group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }
 
-  go web_interface.StartUp(verboseLog,port+"8",GetK,PutKV)
+  go web_interface.StartUp(ml,port+"8",GetK,PutKV)
 
   group.CoordinatorStartServer(ip,port)
 

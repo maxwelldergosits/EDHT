@@ -59,7 +59,7 @@ func (t * Daemon) Commit(key string, reply *map[string]string) (error){
   ov := commit(key)
   ret := make(map[string]string)
   ret["ov"] = ov
-  normalLog("ov:",ov)
+  ml.NPrintln("ov:",ov)
   *reply = ret
   return nil
 }

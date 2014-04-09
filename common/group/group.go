@@ -6,6 +6,7 @@ import (
   . "EDHT/common"
   . "EDHT/utils"
   "EDHT/common/rpc_stubs"
+  "mlog"
   )
 
 type Group struct {
@@ -20,18 +21,16 @@ type Group struct {
 
 var defaultGroup Group
 var id uint64
+var ml mlog.MLog
 
-var verboseLog func(a...interface{})
-var normalLog func(a...interface{})
 var newDaemonCallback func(d uint64)
 
 //Creates a new group
 //Returns your id in the group
 
-func InitGroup(vl func(a...interface{}), nl func(a...interface{}),newDaemon func(d uint64)) {
+func InitGroup(vl mlog.MLog,newDaemon func(d uint64)) {
 
-  verboseLog = vl
-  normalLog = nl
+  ml  = vl
   newDaemonCallback = newDaemon
 
 
@@ -47,11 +46,11 @@ func GetCoordinator(d uint64) RemoteServer{
 }
 
 func DeleteDaemon(d uint64) {
-  verboseLog("Deleting Coordinator",d)
+  ml.VPrintln("debug","Deleting Coordinator",d)
   delete(defaultGroup.Daemons,d)
 }
 func DeleteCoordinator(d uint64) {
-  verboseLog("Deleting Coordinator",d)
+  ml.VPrintln("debug","Deleting Coordinator",d)
   delete(defaultGroup.Coordinators,d)
 }
 
@@ -102,7 +101,7 @@ func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string)
   res = rpc_stubs.AttachToGroupRPC(me,ip+":"+port)
 
   id := res.ID
-  verboseLog("id:",res.ID)
+  ml.VPrintln("debug","id:",res.ID)
 
   return id
 
@@ -125,7 +124,7 @@ func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPor
   defaultGroup.Nfailures    = res.Nfailures
   id                        = res.ID
 
-  verboseLog("id:",res.ID)
+  ml.VPrintln("debug","id:",res.ID)
 
   return defaultGroup
 }

@@ -6,7 +6,7 @@ import (
   "EDHT/common/group"
   "flag"
   "os"
-  "EDHT/utils"
+  "mlog"
 )
 var (
   port string
@@ -15,8 +15,7 @@ var (
   id uint64
   groupAddress string
   verbose bool
-  verboseLog func(a...interface{})
-  normalLog func(a...interface{})
+  ml mlog.MLog
 
   local_state DaemonData
 )
@@ -51,17 +50,17 @@ func main() {
  registerCLA()
 
   local_state = SpawnDaemon(ip,port)
-  normalLog,verboseLog = utils.GenLogger(verbose,"",true)
+  ml = mlog.Create([]string{},"",true,verbose)
 
-    verboseLog("port:",port)
-    verboseLog("ip-address:",ip)
+    ml.VPrintln("debug","port:",port)
+    ml.VPrintln("debug","ip-address:",ip)
 
   InitTPC()
-  group.InitGroup(verboseLog,normalLog,nil)
+  group.InitGroup(ml,nil)
 
   id := group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
   if (id == 0) {
-    normalLog("Couldn't join group, Exiting")
+    ml.NPrintln("Couldn't join group, Exiting")
     os.Exit(1)
   }
   startServer(ip,port)

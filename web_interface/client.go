@@ -32,12 +32,13 @@ import (
   "net/http"
   "log"
   "fmt"
+  "mlog"
 )
 
 var (
   getF func(key string) (string,error)
   putF func(key string,value string) (bool,string)
-  verboseLog func(a... interface{})
+  ml mlog.MLog
 )
 
 func gethandler(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +73,11 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func StartUp(verbose func(a... interface{}),port string, get func(key string)(string,error), put func(key string, value string) (bool,string)) {
-  verboseLog = verbose
+func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(key string, value string) (bool,string)) {
+  ml = logger
   getF = get
   putF = put
-  verboseLog("starting web inteface")
+  ml.VPrintln("debug","starting web inteface")
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)
