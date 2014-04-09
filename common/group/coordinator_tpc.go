@@ -8,7 +8,7 @@ var pendingCommits      map[uint64]RemoteServer
 
 // this method does the two phase commit for a new server
 func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
-  ml.VPrintln("debug","attaching:",rs)
+  ml.VPrintln("gms","attaching:",rs)
   //update id
   machineid := rs.ID
   rs.ID = utils.GenId(machineid,rs.Coordinator)
@@ -61,17 +61,17 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
 
 func preCommit(rs RemoteServer)bool{
-  ml.VPrintln("debug","precommiting:",rs)
+  ml.VPrintln("gms","precommiting:",rs)
   pendingCommits[rs.ID] = rs
   return true
 }
 
 func localCommit(rs RemoteServer){
-  ml.VPrintln("debug","commiting:",rs)
+  ml.VPrintln("gms","commiting:",rs)
   if rs.Coordinator {
     defaultGroup.Coordinators[rs.ID]=rs
   } else {
-    ml.VPrintln("debug","added new Daemon")
+    ml.VPrintln("gms","added new Daemon")
     newDaemonCallback(rs.ID)
     defaultGroup.Daemons[rs.ID]=rs
   }
@@ -79,6 +79,6 @@ func localCommit(rs RemoteServer){
 }
 
 func localAbort(rs RemoteServer) {
-  ml.VPrintln("debug","aborting:",rs)
+  ml.VPrintln("gms","aborting:",rs)
   delete(pendingCommits,rs.ID)
 }

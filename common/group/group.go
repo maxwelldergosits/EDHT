@@ -46,11 +46,11 @@ func GetCoordinator(d uint64) RemoteServer{
 }
 
 func DeleteDaemon(d uint64) {
-  ml.VPrintln("debug","Deleting Coordinator",d)
+  ml.VPrintln("gms","Deleting Daemon",d)
   delete(defaultGroup.Daemons,d)
 }
 func DeleteCoordinator(d uint64) {
-  ml.VPrintln("debug","Deleting Coordinator",d)
+  ml.VPrintln("gms","Deleting Coordinator",d)
   delete(defaultGroup.Coordinators,d)
 }
 
@@ -101,7 +101,7 @@ func JoinGroupAsDaemon(ip string, port string, localIP string, localPort string)
   res = rpc_stubs.AttachToGroupRPC(me,ip+":"+port)
 
   id := res.ID
-  ml.VPrintln("debug","id:",res.ID)
+  ml.VPrintln("gms","id:",res.ID)
 
   return id
 
@@ -124,7 +124,7 @@ func JoinGroupAsCoordinator(ip string, port string,localAddress string, localPor
   defaultGroup.Nfailures    = res.Nfailures
   id                        = res.ID
 
-  ml.VPrintln("debug","id:",res.ID)
+  ml.VPrintln("gms","id:",res.ID)
 
   return defaultGroup
 }

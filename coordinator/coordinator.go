@@ -21,6 +21,7 @@ package main
 import (
   "EDHT/common/group"
   "EDHT/web_interface"
+  "EDHT/utils"
   "os"
   "mlog"
 )
@@ -39,7 +40,8 @@ var (
 
   groupAddress string
   groupconnect bool
-  verbose bool
+  verboseLevels []string
+  all bool
 
   logDir string
   dataDir string
@@ -52,7 +54,7 @@ var (
 func main() {
 
   registerCLA()
-  ml = mlog.Create([]string{},"",true,verbose)
+  ml = mlog.Create(verboseLevels,"",true,all)
 
   ml.NPrintln("coordinator starting up")
 
@@ -62,7 +64,9 @@ func main() {
   group.InitGroup(ml,NewDaemon)
 
   if(groupconnect) {
+    utils.Trace("connect")
     g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
+    ml.VPrintln("time","connected in ",utils.Un("connect")/1e6,"milliseconds")
     if group.GetLocalID() == 0 {
       ml.NPrintln("Couldn't join group shutting down")
       os.Exit(1)

@@ -13,14 +13,14 @@ func GetTimeNano() uint64 {
 }
 
 func GenId(machineid uint64, coor bool) uint64{
-
+  var ts uint64
   timestamp := uint64(time.Now().UnixNano())
   if coor {
-    return timestamp << 22 | machineid << 1 | 1
+    ts = timestamp << 22 | machineid << 1 | 1
   } else {
-    return timestamp << 22 | machineid << 1 | 0
+    ts = timestamp << 22 | machineid << 1 | 0
   }
-
+  return ts
 }
 
 // returns mac address of local computer

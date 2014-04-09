@@ -21,6 +21,7 @@ func preCommit(key string, value string) bool {
 
 func commit(key string) string{
 
+
   t := Tuple{key,pendingCommmits[key]}
 
   nbs := 0
@@ -38,6 +39,7 @@ func commit(key string) string{
   addbytes(nbs)
 
   insert(t)
+  delete(pendingCommmits,key)
   return ov
 }
 

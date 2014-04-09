@@ -65,7 +65,7 @@ func conv(key string) uint64 {
 // Argument : id of the daemon
 func NewDaemon(id uint64) {
   slot := int(djb2(id) % uint64(len(shards)))
-  ml.NPrintln("daemon", id, "added to shard",slot)
+  ml.VPrintln("gms","daemon", id, "added to shard",slot)
   shards[slot].Daemons[id]= true
 }
 

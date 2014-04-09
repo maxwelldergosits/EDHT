@@ -77,7 +77,7 @@ func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), p
   ml = logger
   getF = get
   putF = put
-  ml.VPrintln("debug","starting web inteface")
+  ml.VPrintln("web","starting web inteface")
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)

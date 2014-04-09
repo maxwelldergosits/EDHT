@@ -77,7 +77,13 @@ func tryTPC(shard *Shard, key string, value string) (bool,map[string]string){
   }
 
   tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure)
-  return tpc.Run()
+  succ,info := tpc.Run()
+  if succ {
+    ml.VPrintf("kv","Commited key %s\n",key)
+  } else {
+    ml.VPrintf("kv","Aborted key %s\n",key)
+  }
+  return succ,info
 }
 
 func getValue(shard * Shard, key string) (string,error) {

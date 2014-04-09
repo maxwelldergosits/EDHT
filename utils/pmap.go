@@ -10,27 +10,30 @@ type Pmap struct {
 }
 
 func (pm * Pmap) Put(key string, value string, replace bool) bool {
+  var flag bool
   if _, exists := pm.data[key];exists {
     if ! replace {
-      return false
+      flag =  false
     } else {
       pm.data[key]= value
-      return true
+      flag =  true
     }
   } else {
       pm.data[key]= value
-      return true
+      flag =  true
   }
+  return flag
 }
 
 func (pm * Pmap) Get(key string) (string,error) {
-
+  var v string
+  var e error
   if val,exists := pm.data[key]; exists {
-    return val,nil
+    v,e = val,nil
   } else {
-    return "",errors.New("Key doesn't exist")
+    v,e = "",errors.New("Key doesn't exist")
   }
-
+  return v,e
 }
 
 
