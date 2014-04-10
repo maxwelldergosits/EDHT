@@ -32,6 +32,7 @@ import (
   "net/http"
   "log"
   "fmt"
+  "encoding/json"
   "mlog"
 )
 
@@ -51,7 +52,12 @@ func getshandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
       value = "error"
     }
-    fmt.Fprintf(w,"key: %s \nvalue: %s\n",key,value)
+    group := make(map[string]string)
+    group["key"] =key
+    group["value"] = value
+    b, _ := json.MarshalIndent(group,"","  ")
+    w.Write(b)
+    w.Header().Set("Content-Type","text/json")
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -61,16 +67,18 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     key:= r.FormValue("key")
     value:= r.FormValue("value")
     succ, ov := putF(key,value)
+    group := make(map[string]string)
     if succ {
-      fmt.Fprintf(w,"Submitted key:%s value:%s oldvalue:%s",key,value,ov)
-      w.Header().Set("suc","true")
-      w.Header().Set("key",key)
-      w.Header().Set("value",value)
-      w.Header().Set("value",ov)
+      group["key"] =key
+      group["value"] = value
+      group["ov"] = ov
+      group["succ"] = "true"
     } else {
-      fmt.Fprintf(w,"Error: was not able to submit key:%s\n",key)
-      w.Header().Set("suc","false")
+      group["succ"] = "false"
     }
+    b, _ := json.MarshalIndent(group,"","  ")
+    w.Write(b)
+    w.Header().Set("Content-Type","text/json")
 }
 
 func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(key string, value string) (bool,string)) {
