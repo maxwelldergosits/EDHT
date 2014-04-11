@@ -1,16 +1,22 @@
 package main
 import (
   . "EDHT/common"
+  "sync"
 )
 
 var pendingCommmits map[string]string
 
-func InitTPC() {
+var PreCommitLock sync.Mutex
+
+func init() {
   pendingCommmits = make(map[string]string)
 
 }
 
+
 func preCommit(key string, value string) bool {
+  PreCommitLock.Lock()
+  defer PreCommitLock.Unlock()
   if _, ok := pendingCommmits[key]; ok {
     return false // there is a pending commit for this key DO NOT PRECOMMIT
   } else {
@@ -61,7 +67,6 @@ func (t * Daemon) Commit(key string, reply *map[string]string) (error){
   ov := commit(key)
   ret := make(map[string]string)
   ret["ov"] = ov
-  ml.NPrintln("ov:",ov)
   *reply = ret
   return nil
 }

@@ -7,6 +7,7 @@ import (
   "flag"
   "os"
   "mlog"
+  "strings"
 )
 var (
   port string
@@ -14,7 +15,8 @@ var (
   groupPort string
   id uint64
   groupAddress string
-  verbose bool
+  vall bool
+  verboseLevels []string
   ml mlog.MLog
 
   local_state DaemonData
@@ -26,12 +28,17 @@ func registerCLA(){
   flag.StringVar(&port, "port", "1456","Port to bind the server to")
   flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
 
-  flag.BoolVar(&verbose, "verbose", false, "verbose output")
+  flag.BoolVar(&vall, "vall", false, "print all verbosity levels to stdout")
+  var vl string
+  flag.StringVar(&vl, "verbose", "", "levels of verbosity, : separated")
+
   flag.StringVar(&groupAddress, "group-address", "", "Address of any node in a group to connect to")
   flag.StringVar(&groupPort, "group-port", "", "Port of that the node in the group is on")
 
 
   flag.Parse()
+
+  verboseLevels = strings.Split(vl,":")
 
   if groupAddress == "" || groupPort == "" {
     fmt.Println("Usage:")
@@ -50,12 +57,11 @@ func main() {
  registerCLA()
 
   local_state = SpawnDaemon(ip,port)
-  ml = mlog.Create([]string{},"",true,verbose)
+  ml = mlog.Create(verboseLevels,"",true,vall)
 
-    ml.VPrintln("debug","port:",port)
-    ml.VPrintln("debug","ip-address:",ip)
+    ml.VPrintln("info","port:",port)
+    ml.VPrintln("info","ip-address:",ip)
 
-  InitTPC()
   group.InitGroup(ml,nil)
 
   id := group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
