@@ -8,23 +8,16 @@ import(
   "errors"
 )
 
-func getShardForKey(key string) *Shard{
-
-  var n = conv(key)
-
-  for _,shard := range shards {
-    if shard.Start <= n && n <= shard.End {
-      return shard
-    }
-  }
-  return nil // This should never happen
-
+type Shard struct {
+  start uint64
+  end uint64
+  daemons map[uint64]bool
+  keys uint
 }
 
-
 func PutKV(key string, value string) (bool,string){
-  shard := getShardForKey(key)
-  nD := uint(len(shard.Daemons))
+  shard := partitions.GetShardForKey(key)
+  nD := uint(len(shard.daemons))
   if (nD < group.GetNFailures() + 1) {
     return false,""
   }
@@ -33,10 +26,8 @@ func PutKV(key string, value string) (bool,string){
 }
 
 
-
-
 func GetK(key string) (string,error) {
-  shard := getShardForKey(key)
+  shard := partitions.GetShardForKey(key)
   return getValue(shard,key)
 }
 
@@ -67,13 +58,13 @@ func tryTPC(shard *Shard, key string, value string) (bool,map[string]string){
   id := group.GetLocalID()
 
   acceptors := make(map[uint64]RemoteServer)
-  for k,_ := range shard.Daemons {
+  for k,_ := range shard.daemons {
     acceptors[k] = group.GetDaemon(k)
   }
 
   var failure = func(v RemoteServer) {
     group.DeleteDaemon(v.ID)
-    delete(shard.Daemons,v.ID)
+    delete(shard.daemons,v.ID)
   }
 
   tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure)
@@ -88,10 +79,10 @@ func tryTPC(shard *Shard, key string, value string) (bool,map[string]string){
 
 func getValue(shard * Shard, key string) (string,error) {
   time := utils.GetTimeNano()
-  d := int(time % uint64(len(shard.Daemons)))
+  d := int(time % uint64(len(shard.daemons)))
 
   i := 0
-  for k,_ := range shard.Daemons {
+  for k,_ := range shard.daemons {
     if i==d {
       rs := group.GetDaemon(k)
       rep, err := rpc_stubs.GetKeyDaemonRPC(key,rs)

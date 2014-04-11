@@ -24,6 +24,7 @@ import (
   "EDHT/utils"
   "os"
   "mlog"
+  "os/signal"
 )
 
 
@@ -34,6 +35,9 @@ var (
 
   nshards int
   failures int
+
+
+  partitions *PartitionSet
 
   disableLog bool
   groupPort string
@@ -61,31 +65,48 @@ func main() {
   ml.VPrintln("debug","port:",port)
   ml.VPrintln("debug","ip-address:",ip)
 
-  group.InitGroup(ml,NewDaemon)
+  group.InitGroup(ml,func(a uint64){partitions.AddDaemon(a)})
+  go group.CoordinatorStartServer(ip,port)
 
   if(groupconnect) {
+
     utils.Trace("connect")
+
     g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
+
     ml.VPrintln("time","connected in ",utils.Un("connect")/1e6,"milliseconds")
+
     if group.GetLocalID() == 0 {
       ml.NPrintln("Couldn't join group shutting down")
       os.Exit(1)
     }
-    MakeKeySpace(int(g.Nshards))
+
+    partitions =  MakeKeySpace(int(g.Nshards))
+
   } else {
 
       ml.NPrintln("creating group")
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
-      MakeKeySpace(nshards)
+      partitions =  MakeKeySpace(int(nshards))
 
       group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }
 
-  go web_interface.StartUp(ml,port+"8",GetK,PutKV)
+  c := make(chan os.Signal, 1)
+  signal.Notify(c, os.Interrupt)
+  go func(){
+      for _ = range c {
+          partitions.GatherInfo()
+          os.Exit(1)
+      }
+  }()
 
-  group.CoordinatorStartServer(ip,port)
+  web_interface.StartUp(ml,port+"8",GetK,PutKV)
+
 
 }
+
+
 
 

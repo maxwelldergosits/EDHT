@@ -31,8 +31,3 @@ type Hashtable struct {
 	Store map[string]string
 }
 
-type Shard struct {
-  Start uint64
-  End uint64
-  Daemons map[uint64]bool
-}

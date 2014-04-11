@@ -68,7 +68,7 @@ func GetKeyDaemonRPC(key string, rs RemoteServer) (string,error) {
 
 }
 
-func GetInfoDaemonRPC(arg int, rs RemoteServer) (int,error) {
+func GetInfoDaemonRPC(arg uint, rs RemoteServer) (int,error) {
 
   client, err := utils.MakeConnection(rs)
   if err != nil {
@@ -77,7 +77,7 @@ func GetInfoDaemonRPC(arg int, rs RemoteServer) (int,error) {
 
   var reply int
   err = client.Call("Daemon.GetInfo",arg,&reply)
-  return reply,nil
+  return reply,err
 
 }
 
