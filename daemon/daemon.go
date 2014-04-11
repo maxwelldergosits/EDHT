@@ -6,7 +6,7 @@ import (
   "EDHT/common/group"
   "flag"
   "os"
-  "mlog"
+  "github.com/mad293/mlog"
   "strings"
 )
 var (

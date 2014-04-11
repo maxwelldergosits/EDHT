@@ -6,7 +6,7 @@ import (
   . "EDHT/common"
   . "EDHT/utils"
   "EDHT/common/rpc_stubs"
-  "mlog"
+  "github.com/mad293/mlog"
   )
 
 type Group struct {

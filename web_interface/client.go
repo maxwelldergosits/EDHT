@@ -33,7 +33,7 @@ import (
   "log"
   "fmt"
   "encoding/json"
-  "mlog"
+  "github.com/mad293/mlog"
 )
 
 var (

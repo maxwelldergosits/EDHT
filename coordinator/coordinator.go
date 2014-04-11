@@ -22,8 +22,9 @@ import (
   "EDHT/common/group"
   "EDHT/web_interface"
   "EDHT/utils"
+  "EDHT/coordinator/partition"
   "os"
-  "mlog"
+  "github.com/mad293/mlog"
   "os/signal"
 )
 
@@ -37,7 +38,7 @@ var (
   failures int
 
 
-  partitions *PartitionSet
+  partitions *partition.PartitionSet
 
   disableLog bool
   groupPort string
@@ -81,14 +82,15 @@ func main() {
       os.Exit(1)
     }
 
-    partitions =  MakeKeySpace(int(g.Nshards))
+    partitions =  partition.MakeKeySpace(int(g.Nshards),getInfoForShard,func(*partition.Shard){})
+
 
   } else {
 
       ml.NPrintln("creating group")
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
-      partitions =  MakeKeySpace(int(nshards))
+      partitions =  partition.MakeKeySpace(int(nshards),getInfoForShard,func(*partition.Shard){})
 
       group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }
