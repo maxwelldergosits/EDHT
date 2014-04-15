@@ -31,3 +31,13 @@ type Hashtable struct {
 	Store map[string]string
 }
 
+type Range struct {
+  Start string
+  End string
+}
+
+type ServerRange struct {
+  Server RemoteServer
+  Range Range
+
+}

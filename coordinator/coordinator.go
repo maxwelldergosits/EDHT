@@ -69,6 +69,8 @@ func main() {
   group.InitGroup(ml,func(a uint64){partitions.AddDaemon(a)})
   go group.CoordinatorStartServer(ip,port)
 
+  var delegate = new(PD)
+
   if(groupconnect) {
 
     utils.Trace("connect")
@@ -82,7 +84,7 @@ func main() {
       os.Exit(1)
     }
 
-    partitions =  partition.MakeKeySpace(int(g.Nshards),getInfoForShard,func(*partition.Shard){})
+    partitions =  partition.MakeKeySpace(int(g.Nshards),delegate)
 
 
   } else {
@@ -90,7 +92,7 @@ func main() {
       ml.NPrintln("creating group")
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
-      partitions =  partition.MakeKeySpace(int(nshards),getInfoForShard,func(*partition.Shard){})
+      partitions =  partition.MakeKeySpace(int(nshards),delegate)
 
       group.CreateGroup(ip,port,uint(nshards),uint(failures))
   }

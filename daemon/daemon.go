@@ -13,14 +13,18 @@ var (
   port string
   ip   string
   groupPort string
-  id uint64
   groupAddress string
+  id uint64
+
   vall bool
   verboseLevels []string
+
   ml mlog.MLog
 
-  local_state DaemonData
+  data map[string]string
+  preCommits map[string]string
 )
+
 
 
 func registerCLA(){
@@ -56,11 +60,12 @@ func main() {
 
  registerCLA()
 
-  local_state = SpawnDaemon(ip,port)
+  preCommits = make(map[string]string)
+  data = make(map[string]string)
   ml = mlog.Create(verboseLevels,"",true,vall)
 
-    ml.VPrintln("info","port:",port)
-    ml.VPrintln("info","ip-address:",ip)
+  ml.VPrintln("info","port:",port)
+  ml.VPrintln("info","ip-address:",ip)
 
   group.InitGroup(ml,nil)
 

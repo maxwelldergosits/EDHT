@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-  "EDHT/utils"
 	"errors"
   . "EDHT/common"
   "sync"
@@ -12,43 +11,47 @@ type Daemon int
 
 var (
   nbytes int
-  nkeys uint
+  nkeys int
   keyMutex sync.Mutex
   byteMutex sync.Mutex
 )
 
 //insert value in tuple into hashtable.
 func insert(pair Tuple){
-	local_state.Hashtable.Store[pair.Key]= pair.Value
-	local_state.Hashtable.Size++
+	data[pair.Key]= pair.Value
 }
 
 //return value corresponding to 'key'
 func lookup(key string) (string, error){
-  if val, ok := local_state.Hashtable.Store[key];ok {
+  if val, ok := data[key];ok {
     return val,nil
   }
 	return "", errors.New("daemon lookup error: nonexistent key.")
 }
 
-/*Returns a pointer to a newly constructed Daemon object, with the specified address and port number.
-*/
-func SpawnDaemon(address string, port string) DaemonData{
-	remote_server := RemoteServer{Address:address, Port:port, ID:utils.GenMachineId(), Coordinator:false}
-	table := Hashtable{0, make(map[string]string)}
-	d := DaemonData{remote_server, table}
-  return d
+
+func iterateKeys(iterFunc func(key,value string)) {
+
+  for key,value := range data {
+    iterFunc(key,value)
+  }
+}
+
+func deleteKey(key string) {
+
+  delete(data,key)
+
 }
 
 // function to keep track of the number of keys in the system
 // arg = number of keys to add
-func addkey(arg uint) {
+func addkey(arg int) {
   keyMutex.Lock()
   nkeys += arg
   keyMutex.Unlock()
 }
 
-func NKeys() uint {
+func NKeys() int {
   return nkeys
 }
 
@@ -80,7 +83,7 @@ func (t *Daemon) WriteToDisk(path string, reply *string) error{
 
 	defer f.Close()
 
-	for key, value := range local_state.Hashtable.Store{
+	for key, value := range data {
 		_, err := f.WriteString(key + ", " + value)
 		if(err != nil){
 			return errors.New("WriteToDisk: WriteString error.")
@@ -89,3 +92,19 @@ func (t *Daemon) WriteToDisk(path string, reply *string) error{
 	f.Sync()
 	return nil
 }
+
+
+func (t * Daemon) GetAllKVsInRange(Keyrange Range, reply *map[string]string) error{
+
+  newmap := make(map[string]string)
+
+  for k,v := range data {
+    if (Keyrange.Start < k && k < Keyrange.End) {
+      newmap[k] = v
+    }
+  }
+
+  *reply = newmap
+  return nil
+}
+

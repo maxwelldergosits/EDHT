@@ -1,5 +1,6 @@
 /*
 
+
 This files is all rpc wrappers for each daemon method.
 
 */
@@ -7,6 +8,7 @@ package main
 
 import (
   . "EDHT/common"
+  "EDHT/common/rpc_stubs"
   "errors"
 )
 
@@ -38,9 +40,9 @@ func (t *Daemon) Get(key string, reply *string) error {
  *Argument arg is ignored, and reply is not used. Error is nil on success, non-nil on failure.
  */
 func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
-	keys := make([]string, local_state.Hashtable.Size)
+	keys := make([]string, len(data))
 	i := 0
-	for key, _ := range local_state.Hashtable.Store{
+	for key, _ := range data{
 		keys[i] = key
 	}
 	*reply = keys
@@ -61,4 +63,54 @@ func (t * Daemon) GetInfo(arg uint, reply * int) error {
       return nil
   }
   return errors.New("Invalid Parameter")
+}
+
+func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error {
+
+
+  rs := srange.Server
+  ks := srange.Range
+
+  newKVs,err  := rpc_stubs.GetKVsInRangeDaemonRPC(ks.Start,ks.End,rs)
+  if (err != nil) {
+    *keys = nil
+    return err
+  }
+  newKeys := make([]string,0,len(newKVs))
+  for k,v := range newKVs {
+    if preCommit(k,v) {
+      newKeys = append(newKeys,k)
+    }
+  }
+  *keys = newKeys
+  return nil
+}
+
+func (t * Daemon) CommitKeys(keys []string, reply *bool) error {
+
+  for i := range keys {
+    commit(keys[i])
+  }
+  *reply = true
+  return nil
+
+}
+
+
+
+func (t * Daemon) AbortKeys(keys []string, reply *bool) error {
+
+  for i := range keys {
+    abort(keys[i])
+  }
+  *reply = true
+  return nil
+
+}
+
+func (t * Daemon) DeleteKeys(keys[] string,reply *bool) error {
+  for i := range keys {
+    deleteKey(keys[i])
+  }
+  return nil
 }

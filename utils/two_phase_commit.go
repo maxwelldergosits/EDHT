@@ -83,10 +83,8 @@ func (t * TwoPhaseCommit) Run() (bool,map[string]string){
 
   var action func(rs RemoteServer)map[string]string
   if (doCommit) {
-    t.localCommit()
     action = t.remoteCommit
   } else {
-    t.localAbort()
     action = t.remoteAbort
   }
 
@@ -100,7 +98,11 @@ func (t * TwoPhaseCommit) Run() (bool,map[string]string){
       done <- false//value doesn't matter
     }(v)
   }
-
+  if doCommit {
+    t.localCommit()
+  } else {
+    t.localAbort()
+  }
   for i:=0; i<n;i++ {
     <-done
   }

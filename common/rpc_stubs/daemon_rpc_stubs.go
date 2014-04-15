@@ -81,3 +81,62 @@ func GetInfoDaemonRPC(arg uint, rs RemoteServer) (int,error) {
 
 }
 
+
+func GetKVsInRangeDaemonRPC(start, end string, rs RemoteServer) (map[string]string,error) {
+
+  keys := Range{start,end}
+
+  client, err := utils.MakeConnection(rs)
+  if err != nil {
+    return nil,errors.New("dialing error:"+err.Error())
+  }
+
+  var reply map[string]string
+  err = client.Call("Daemon.GetAllKVsInRange",keys,&reply)
+  return reply,err
+
+}
+
+func RetrieveKeysInRangeDaemonRPC(start, end string, od RemoteServer, rs RemoteServer) ([]string,error) {
+
+
+  ra := Range{start,end}
+  arg := ServerRange{od,ra}
+
+  client, err := utils.MakeConnection(rs)
+  if err != nil {
+    return nil,errors.New("dialing error:"+err.Error())
+  }
+
+  var reply []string
+  err = client.Call("Daemon.RetrieveKeysInRange",arg,&reply)
+  return reply,err
+
+
+}
+
+func CommitKeysDaemonRPC(keys []string, rs RemoteServer) error {
+
+  client, err := utils.MakeConnection(rs)
+  if err != nil {
+    return errors.New("dialing error:"+err.Error())
+  }
+
+  var reply bool
+  err = client.Call("Daemon.CommitKeys",keys,reply)
+  return err
+
+}
+
+func AbortKeysDaemonRPC(keys []string, rs RemoteServer) error {
+
+  client, err := utils.MakeConnection(rs)
+  if err != nil {
+    return errors.New("dialing error:"+err.Error())
+  }
+
+  var reply bool
+  err = client.Call("Daemon.AbortKeys",keys,reply)
+  return err
+
+}
