@@ -5,15 +5,14 @@ import (
   "errors"
 )
 
-func PreCommitDaemonRPC(key string, value string, rs RemoteServer) (bool,error) {
+func PreCommitDaemonRPC(req PutRequest, rs RemoteServer) (bool,error) {
   client, err := utils.MakeConnection(rs)
   if err != nil {
     return false,errors.New("dialing error:"+err.Error())
   }
 
-  t:= Tuple{key,value}
   var reply bool
-  err = client.Call("Daemon.PreCommit",t,&reply)
+  err = client.Call("Daemon.PreCommit",req,&reply)
   return reply,err
 
 

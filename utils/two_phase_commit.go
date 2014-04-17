@@ -8,7 +8,10 @@ this allows for less code duplicaton and inter module dependencies
 */
 package utils
 
-import . "EDHT/common"
+import (
+  . "EDHT/common"
+  "errors"
+)
 
 
 type TwoPhaseCommit struct {
@@ -50,7 +53,7 @@ func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
 
 }
 
-func (t * TwoPhaseCommit) Run() (bool,map[string]string){
+func (t * TwoPhaseCommit) Run() (error,map[string]string){
 
   t.localPreCommit()
 
@@ -106,5 +109,9 @@ func (t * TwoPhaseCommit) Run() (bool,map[string]string){
   for i:=0; i<n;i++ {
     <-done
   }
-  return doCommit,ret
+  if !doCommit {
+    return errors.New("Commit Failed"),nil
+  } else {
+    return nil,ret
+  }
 }

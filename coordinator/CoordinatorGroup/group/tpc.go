@@ -1,27 +1,27 @@
 package group
+
 import (
   "EDHT/utils"
  . "EDHT/common"
   "EDHT/common/rpc_stubs"
 )
-var pendingCommits      map[uint64]RemoteServer
 
 // this method does the two phase commit for a new server
-func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
-  ml.VPrintln("gms","attaching:",rs)
+func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
+  g.ml.VPrintln("gms","attaching:",rs)
   //update id
   machineid := rs.ID
   rs.ID = utils.GenId(machineid,rs.Coordinator)
 
   var lc = func(){
-    localCommit(rs)
+    g.LocalCommit(rs)
   }
   var la = func(){
-    localAbort(rs)
+    g.LocalAbort(rs)
   }
 
   var lpc = func(){
-    preCommit(rs)
+    g.PreCommit(rs)
   }
 
   var rpc = func(v RemoteServer)(bool,error){
@@ -38,19 +38,19 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     return nil
   }
   var acceptors map[uint64]RemoteServer = make(map[uint64]RemoteServer)
-  for k,v := range defaultGroup.Coordinators {
+  for k,v := range g.coordinators {
     acceptors[k] = v
   }
 
   var failure = func(rs RemoteServer) {
-    DeleteCoordinator(rs.ID)
+    g.Delete(rs)
   }
-  t := utils.InitTPC(acceptors,id,lpc,lc,la,rpc,rc,ra,failure)
+  t := utils.InitTPC(acceptors,g.id,lpc,lc,la,rpc,rc,ra,failure)
 
   ok,_ := t.Run()
-  if (ok){
+  if (ok!=nil){
     if rs.Coordinator {
-      return RegisterReply{defaultGroup.Coordinators,defaultGroup.Daemons,rs.ID,defaultGroup.Nshards,defaultGroup.Nfailures}
+      return RegisterReply{g.coordinators,g.daemons,rs.ID,g.nshards,g.nfailures}
     }else {
       return RegisterReply{nil,nil,rs.ID,0,0}
     }
@@ -60,25 +60,25 @@ func AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
 
 
-func preCommit(rs RemoteServer)bool{
-  ml.VPrintln("gms","precommiting:",rs)
-  pendingCommits[rs.ID] = rs
+func (g * Group) PreCommit(rs RemoteServer)bool{
+  g.ml.VPrintln("gms","precommiting:",rs)
+  g.pendingCommits[rs.ID] = rs
   return true
 }
 
-func localCommit(rs RemoteServer){
-  ml.VPrintln("gms","commiting:",rs)
+func (g * Group) LocalCommit(rs RemoteServer){
+  g.ml.VPrintln("gms","commiting:",rs)
   if rs.Coordinator {
-    defaultGroup.Coordinators[rs.ID]=rs
+    g.coordinators[rs.ID]=rs
   } else {
-    ml.VPrintln("gms","added new Daemon")
-    newDaemonCallback(rs.ID)
-    defaultGroup.Daemons[rs.ID]=rs
+    g.ml.VPrintln("gms","added new Daemon")
+    g.newDaemonCallBack(rs.ID)
+    g.daemons[rs.ID]=rs
   }
-  delete(pendingCommits,rs.ID)
+  delete(g.pendingCommits,rs.ID)
 }
 
-func localAbort(rs RemoteServer) {
-  ml.VPrintln("gms","aborting:",rs)
-  delete(pendingCommits,rs.ID)
+func (g * Group) LocalAbort(rs RemoteServer) {
+  g.ml.VPrintln("gms","aborting:",rs)
+  delete(g.pendingCommits,rs.ID)
 }

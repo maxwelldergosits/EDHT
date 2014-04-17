@@ -2,6 +2,7 @@ package partition
 import (
     "bytes"
     "encoding/binary"
+    . "EDHT/common"
 )
 
 func (t * PartitionSet) GetShardForKey(key string) *Shard{
@@ -21,9 +22,24 @@ func (t * Shard) Daemons() *map[uint64]bool{
   return &t.daemons
 }
 
+
+func MakePartitionSet(ns []ShardCopy, delegate PartitionDelegate) *PartitionSet{
+  shards := make([]*Shard,len(ns))
+  for i := range ns {
+    sc := ns[i]
+    shards[i] = &Shard{
+      Start:sc.Start,
+      End:sc.End,
+      daemons:sc.Daemons,
+      Keys:0}
+  }
+  return &PartitionSet{
+    shards,
+    delegate}
+}
+
 // n must be a postive power of two, 2 4 8 16 32 etc
 func MakeKeySpace(n int, delegate PartitionDelegate) *PartitionSet {
-
 
   var shards_map = make([]*Shard,n,n)
   var size uint64 = 1 << 63
@@ -108,6 +124,7 @@ func (t * PartitionSet) GatherInfo() {
   for _ = range t.shards {
     <- done
   }
+
 }
 
 func (t * PartitionSet) UpdateInfo() {
@@ -122,6 +139,7 @@ func (t * PartitionSet) UpdateInfo() {
   for _ = range t.shards {
     <- done
   }
+
 }
 
 

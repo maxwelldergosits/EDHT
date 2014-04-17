@@ -1,7 +1,6 @@
 package rpc_stubs
 import (
   . "EDHT/common"
-  "log"
   "net/rpc"
 )
 func RollBackRegisterRPC(ns * RemoteServer, addr string) (bool,error){
@@ -35,18 +34,20 @@ func coordinatorRPCstub(methodName string, ns * RemoteServer,addr string) (bool,
 
 }
 
-func AttachToGroupRPC(rs RemoteServer,addr string) RegisterReply {
+func AttachToGroupRPC(coordinator bool, laddr, lport string, mid uint64, addr string) (RegisterReply,[]ShardCopy,error) {
 
-  var res RegisterReply
+  rs := RemoteServer{laddr,lport,mid,coordinator}
+
+  var res ConnectReply
   // start connection to remote Server
   client, err := rpc.DialHTTP("tcp", addr)
   if err != nil {
-    log.Fatal("dialing:", err)
+    return RegisterReply{},[]ShardCopy{},err
   }
   // make the rpc call
   err = client.Call("Coordinator.AttachRSToGroup", rs, &res)
-  if err != nil {
-    log.Fatal("attach error:", err)
+  if (err != nil) {
+    return RegisterReply{},[]ShardCopy{},err
   }
-  return res
+  return res.RegReply, res.Partitions, err
 }

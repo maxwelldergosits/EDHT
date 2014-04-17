@@ -32,7 +32,7 @@ func (t * PartitionSet) Copy() (PartitionSet) {
     for k,v := range oS.daemons {
       newMap[k] =v
     }
-    newShards[i] = &Shard{oS.Start,oS.End,newMap,oS.Keys}
+    newShards[i] = &Shard{oS.Start,oS.End,newMap,oS.Keys,oS.delegate}
   }
   return PartitionSet{newShards,t.d}
 }

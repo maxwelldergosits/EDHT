@@ -19,95 +19,59 @@ Usage of coordinator:
 package main
 
 import (
-  "EDHT/common/group"
   "EDHT/web_interface"
-  "EDHT/utils"
-  "EDHT/coordinator/partition"
+  "EDHT/coordinator/CoordinatorGroup"
   "os"
   "github.com/mad293/mlog"
-  "os/signal"
 )
-
 
 
 var (
+
+  // final variables
   port string
   ip   string
-
-  nshards int
-  failures int
-
-
-  partitions *partition.PartitionSet
-
-  disableLog bool
-  groupPort string
-
   groupAddress string
   groupconnect bool
-  verboseLevels []string
-  all bool
-
   logDir string
   dataDir string
-
+  disableLog bool
+  groupPort string
   ml mlog.MLog
-)
 
+
+  gc CoordinatorGroup.CoordinatorGroup // coordinated state.
+)
 
 
 func main() {
 
-  registerCLA()
-  ml = mlog.Create(verboseLevels,"",true,all)
+  verboseLevels, vall, nshards, failures:= registerCLA()
+  ml = mlog.Create(verboseLevels,"",true,vall)
 
   ml.NPrintln("coordinator starting up")
-
   ml.VPrintln("debug","port:",port)
   ml.VPrintln("debug","ip-address:",ip)
 
-  group.InitGroup(ml,func(a uint64){partitions.AddDaemon(a)})
-  go group.CoordinatorStartServer(ip,port)
-
-  var delegate = new(PD)
-
   if(groupconnect) {
 
-    utils.Trace("connect")
+    gc, err := CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port)
 
-    g := group.JoinGroupAsCoordinator(groupAddress,groupPort,ip,port)
-
-    ml.VPrintln("time","connected in ",utils.Un("connect")/1e6,"milliseconds")
-
-    if group.GetLocalID() == 0 {
-      ml.NPrintln("Couldn't join group shutting down")
+    if err != nil {
+      ml.NPrintf("Error: %s, Couldn't join group shutting down\n",err.Error())
       os.Exit(1)
     }
 
-    partitions =  partition.MakeKeySpace(int(g.Nshards),delegate)
-
-
   } else {
 
-      ml.NPrintln("creating group")
+      ml.NPrintln("creating coordinator group")
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
-      partitions =  partition.MakeKeySpace(int(nshards),delegate)
 
-      group.CreateGroup(ip,port,uint(nshards),uint(failures))
+      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,ml)
   }
-
-  c := make(chan os.Signal, 1)
-  signal.Notify(c, os.Interrupt)
-  go func(){
-      for _ = range c {
-          partitions.GatherInfo()
-          os.Exit(1)
-      }
-  }()
-
-  web_interface.StartUp(ml,port+"8",GetK,PutKV)
-
+  startRecalc()
+  web_interface.StartUp(ml,port+"8",GetKey,PutKey)
 
 }
 

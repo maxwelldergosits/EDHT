@@ -1,5 +1,7 @@
 package common
 
+
+
 type RemoteServer struct{
   Address     string
   Port        string
@@ -20,6 +22,16 @@ type RegisterReply struct {
   Nfailures        uint
 }
 
+type ShardCopy struct {
+  Start uint64
+  End uint64
+  Daemons map[uint64]bool
+}
+
+type ConnectReply struct {
+  RegReply RegisterReply
+  Partitions []ShardCopy
+}
 
 type Tuple struct {
   Key   string
@@ -39,5 +51,10 @@ type Range struct {
 type ServerRange struct {
   Server RemoteServer
   Range Range
+}
 
+type PutRequest struct{
+  Key string
+  Value string
+  Options map[string]bool
 }

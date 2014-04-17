@@ -11,15 +11,19 @@ import (
 
 
 
-func registerCLA(){
+func registerCLA() ([]string,bool,int,int) {
   var vl string
+  var vall bool
+  var nshards int
+  var failures int
+
   // local options
   flag.StringVar(&port, "port", "1456","Port to bind the server to")
   flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
   flag.StringVar(&vl, "verbose","", "comma delimited list of verbose levels you want to be printed to stdout")
 
 
-  flag.BoolVar(&all, "vall", false, "print all verbosity levels to stdout")
+  flag.BoolVar(&vall, "vall", false, "print all verbosity levels to stdout")
 
   // group connection options
   flag.BoolVar(&groupconnect, "connect-to-group", false, "connect to an existing group of coordinators")
@@ -37,7 +41,7 @@ func registerCLA(){
 
 
   flag.Parse()
-  verboseLevels = strings.Split(vl,":")
+  verboseLevels := strings.Split(vl,":")
 
   if groupconnect && (groupAddress == "" || groupPort == "") {
 
@@ -51,6 +55,7 @@ func registerCLA(){
     os.Exit(1)
   }
 
+  return verboseLevels,vall,nshards,failures
 }
 
 

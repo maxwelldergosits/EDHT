@@ -33,12 +33,13 @@ import (
   "log"
   "fmt"
   "encoding/json"
+  "strconv"
   "github.com/mad293/mlog"
 )
 
 var (
   getF func(key string) (string,error)
-  putF func(key string,value string) (bool,string)
+  putF func(string,string,map[string]bool) (map[string]string)
   ml mlog.MLog
 )
 
@@ -66,12 +67,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func shandler(w http.ResponseWriter, r *http.Request) {
     key:= r.FormValue("key")
     value:= r.FormValue("value")
-    succ, ov := putF(key,value)
+    getOV:= r.FormValue("ov")
+    getOVbool,_ := strconv.ParseBool(getOV)
+    option:= map[string]bool{"ov":getOVbool}
+    values := putF(key,value,option)
+    succ, _:= strconv.ParseBool(values["succ"])
     group := make(map[string]string)
     if succ {
+      if (getOVbool) {
+        ov := values["ov"]
+        group["ov"] = ov
+      }
       group["key"] =key
       group["value"] = value
-      group["ov"] = ov
       group["succ"] = "true"
     } else {
       group["succ"] = "false"
@@ -81,7 +89,7 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type","text/json")
 }
 
-func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(key string, value string) (bool,string)) {
+func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(string, string, map[string]bool) (map[string]string)) {
   ml = logger
   getF = get
   putF = put
