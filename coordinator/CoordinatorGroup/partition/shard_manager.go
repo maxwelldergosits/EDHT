@@ -23,7 +23,7 @@ func (t * Shard) Daemons() *map[uint64]bool{
 }
 
 
-func MakePartitionSet(ns []ShardCopy, delegate PartitionDelegate) *PartitionSet{
+func MakePartitionSet(ns []ShardCopy, del PartitionDelegate) *PartitionSet{
   shards := make([]*Shard,len(ns))
   for i := range ns {
     sc := ns[i]
@@ -31,26 +31,27 @@ func MakePartitionSet(ns []ShardCopy, delegate PartitionDelegate) *PartitionSet{
       Start:sc.Start,
       End:sc.End,
       daemons:sc.Daemons,
-      Keys:0}
+      Keys:0,
+      delegate:del}
   }
   return &PartitionSet{
     shards,
-    delegate}
+    del}
 }
 
 // n must be a postive power of two, 2 4 8 16 32 etc
-func MakeKeySpace(n int, delegate PartitionDelegate) *PartitionSet {
+func MakeKeySpace(n int, del PartitionDelegate) *PartitionSet {
 
   var shards_map = make([]*Shard,n,n)
   var size uint64 = 1 << 63
   var chunk uint64 = size / uint64(n)
 
   for i:=0; i < n; i++ {
-    ns := &Shard{Start:(uint64(i) * chunk),End:(uint64(i+1) * chunk) -1,daemons:make(map[uint64]bool)}
+    ns := &Shard{Start:(uint64(i) * chunk),End:(uint64(i+1) * chunk) -1,daemons:make(map[uint64]bool),Keys:0,delegate:del}
     shards_map[i] = ns
   }
 
-  return &PartitionSet{shards_map,delegate}
+  return &PartitionSet{shards_map,del}
 
 }
 

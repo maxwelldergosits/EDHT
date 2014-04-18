@@ -10,7 +10,7 @@ type PartitionDelegate interface {
 type ShardDelegate interface {
   GetDaemon(uint64) RemoteServer
   GetLocalID() uint64
-  DeleteDaemon(uint64)
+  DeleteDaemon(uint64) bool
 }
 
 type Shard struct {

@@ -30,6 +30,6 @@ func (pd * PD) GetLocalID() uint64 {
 return 0
 }
 
-func (pd * PD) DeleteDaemon(uint64) {
+func (pd * PD) DeleteDaemon(uint64) bool {
 
 }
