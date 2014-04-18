@@ -7,15 +7,15 @@ import (
 func startRecalc() {
 
 
-  go loop()
+  go loop(10)
 
 }
 
-func loop() {
+func loop(n int) {
 
   for ;; {
     recalc()
-    time.Sleep(3 * time.Second)
+    time.Sleep(time.Duration(n)* time.Second)
   }
 
 }
@@ -24,11 +24,17 @@ func recalc() {
   ml.VPrintln("recalc", "Starting Recalculation of keyspace")
   pts := gc.GetPartitions()
 
-  pts.UpdateInfo()
+  // for shard get number of keys being held
+  keys,err := pts.GetNKeysForEachShard()
 
-  diffs := pts.CalculateDiffs()
+  if err != nil {
+    ml.VPrintln("recalc", "Recalculation Error:",err.Error())
+    return
+  }
 
-  err := gc.UpdatePartitions(diffs) //if it fails, thats okay
+  diffs,newPTS:= pts.CalculateDiffs(keys)
+
+  err = gc.UpdatePartitions(diffs,newPTS) //if it fails, thats okay
   if err != nil {
     ml.VPrintln("recalc", "Recalculation Error:",err.Error())
   } else {

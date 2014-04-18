@@ -4,6 +4,7 @@ All group memebership chagnes must go through this group
 package group
 import (
   . "EDHT/common"
+  "EDHT/utils"
   "github.com/mad293/mlog"
   )
 
@@ -18,21 +19,38 @@ type Group struct {
   newDaemonCallBack func(uint64)
 }
 
-func NewGroup(shards, failures uint) Group {
-    //TODO implement
-  return Group{}
+func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.MLog) Group{
+  newGroup := Group{}
+  newGroup.coordinators = make(map[uint64]RemoteServer)
+  newGroup.daemons = make(map[uint64]RemoteServer)
+  newGroup.id = utils.GenId(utils.GenMachineId(),true)
+  newGroup.nshards = shards
+  newGroup.nfailures = failures
+  newGroup.ml = logger
+  newGroup.pendingCommits = make(map[uint64]RemoteServer)
+
+  me := RemoteServer{
+    Address:localAddress,
+    Port:localPort,
+    ID:newGroup.id,
+    Coordinator:true}
+
+  newGroup.coordinators[me.ID] = me
+
+  return newGroup
 }
 
-func JoinGroup(regReply RegisterReply) (Group, error) {
+func JoinGroup(regReply RegisterReply, logger mlog.MLog) (Group) {
   newGroup := Group{}
   newGroup.coordinators = regReply.Coordinators
   newGroup.daemons = regReply.Daemons
+  newGroup.ml = logger
   newGroup.id = regReply.ID
   newGroup.nshards = regReply.Nshards
   newGroup.nfailures = regReply.Nfailures
   newGroup.pendingCommits = make(map[uint64]RemoteServer)
 
-  return newGroup,nil
+  return newGroup
 }
 
 
@@ -54,6 +72,9 @@ func (g * Group)GetNShards() uint {
 
 func (g * Group) GetDaemon(d uint64) RemoteServer{
   return g.daemons[d]
+}
+func (g * Group) GetID() uint64{
+  return g.id
 }
 
 func (g * Group) GetCoordinator(d uint64) RemoteServer{

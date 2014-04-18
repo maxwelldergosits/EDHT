@@ -54,8 +54,8 @@ func main() {
   ml.VPrintln("debug","ip-address:",ip)
 
   if(groupconnect) {
-
-    gc, err := CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port)
+    var err error
+    gc, err = CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port,ml)
 
     if err != nil {
       ml.NPrintf("Error: %s, Couldn't join group shutting down\n",err.Error())
@@ -68,8 +68,9 @@ func main() {
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
 
-      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,ml)
+      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,port,ip,ml)
   }
+  go CoordinatorStartServer(ip,port)
   startRecalc()
   web_interface.StartUp(ml,port+"8",GetKey,PutKey)
 

@@ -37,7 +37,7 @@ func (t * PartitionSet) Copy() (PartitionSet) {
   return PartitionSet{newShards,t.d}
 }
 
-func (o* PartitionSet) Recalc() PartitionSet{
+func (o* PartitionSet) Recalc(keys []uint) PartitionSet{
   t := o.Copy()
 
   for i:=1; i < len(t.shards); i++ {
@@ -51,8 +51,8 @@ func (o* PartitionSet) Recalc() PartitionSet{
     s2 := shard_2.Start
     e2 := shard_2.End
 
-    k1 := shard_1.Keys
-    k2 := shard_2.Keys
+    k1 := keys[i-1]
+    k2 := keys[i]
 
     pdiff := pd(k1,k2)
 
@@ -77,10 +77,9 @@ func (o* PartitionSet) Recalc() PartitionSet{
 }
 
 
-func GenerateDiffs(oldPS, newPS PartitionSet) ([]Diff,[]Diff) {
+func GenerateDiffs(oldPS, newPS PartitionSet) ([]Diff) {
 
-  toBeCopied := make([]Diff,len(oldPS.shards))
-  toBeDeleted := make([]Diff,len(oldPS.shards))
+  diffs := make([]Diff,len(oldPS.shards))
 
   for i := range oldPS.shards {
 
@@ -90,52 +89,28 @@ func GenerateDiffs(oldPS, newPS PartitionSet) ([]Diff,[]Diff) {
     en := newPS.shards[i].End
     if sn < s && i > 0 {
       //copy sn -> s from shard[i+1]
-      toBeCopied = append(toBeCopied, Diff{i-1,i,sn,s})
+      diffs = append(diffs, Diff{i-1,i,sn,s})
     }
     if en > e && i < len(oldPS.shards)-1 {
       //copy e -> en from shard[i+1]
-      toBeCopied = append(toBeCopied, Diff{i+1,i,e,en})
+      diffs = append(diffs, Diff{i+1,i,e,en})
 
     }
     if sn > s {
       // delete sn -> s after done copying
-      toBeDeleted = append(toBeDeleted, Diff{-1,i,sn,s})
+      diffs = append(diffs, Diff{-1,i,sn,s})
 
     }
     if en < e {
       // delete en -> e after done copying
-      toBeCopied = append(toBeDeleted, Diff{-1,i,e,en})
+      diffs = append(diffs, Diff{-1,i,e,en})
     }
   }
-  return toBeCopied,toBeDeleted
+  return diffs
 
 }
 
-
-func (t * PartitionSet) ApplyDiffs(cds []Diff,dds []Diff) {
-  done := make(chan bool)
-  for i := range cds {
-
-    var diff = cds[i]
-    go func() {
-      to := t.shards[diff.To]
-      from := t.shards[diff.From]
-      start,end := diff.Start,diff.End
-
-      done <- t.d.CopyDiff(to,from,start,end)
-    }()
-
-  }
-  for i:=0; i<len(dds); i++ {
-    <- done
-  }
-  for i := range dds {
-    var diff = cds[i]
-    go func() {
-      from := t.shards[diff.From]
-      start,end := diff.Start,diff.End
-
-      t.d.DeleteDiff(from,start,end)
-    }()
-  }
+func (ps * PartitionSet) CalculateDiffs(keys []uint) ([]Diff,*PartitionSet) {
+  cp := ps.Recalc(keys)
+  return GenerateDiffs(*ps,cp),&cp
 }

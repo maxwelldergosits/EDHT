@@ -1,35 +1,20 @@
 package CoordinatorGroup
 import (
-  "EDHT/coordinator/CoordinatorGroup/partition"
+  "EDHT/coordinator/CoordinatorGroup/group"
   . "EDHT/common"
 )
 type PD struct {
+  gms group.Group
 }
 
-func (pd * PD) GetInfo(s *partition.Shard) {
-
-}
-
-
-func (pd * PD) UpdateShard(s *partition.Shard) {
-
-}
-
-func (pd * PD) CopyDiff(from,to *partition.Shard,a,b uint64) bool{
-  return false
-}
-func (pd * PD) DeleteDiff(from*partition.Shard,a,b uint64) {
-
-}
-
-func (pd * PD) GetDaemon(uint64) RemoteServer {
-  return RemoteServer{}
+func (pd * PD) GetDaemon(id uint64) RemoteServer {
+  return pd.gms.GetDaemon(id)
 }
 
 func (pd * PD) GetLocalID() uint64 {
-return 0
+  return pd.gms.GetID()
 }
 
-func (pd * PD) DeleteDaemon(uint64) bool {
-
+func (pd * PD) DeleteDaemon(id uint64) {
+  pd.gms.Delete(pd.gms.GetDaemon(id))
 }

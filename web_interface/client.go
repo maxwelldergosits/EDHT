@@ -39,7 +39,7 @@ import (
 
 var (
   getF func(key string) (string,error)
-  putF func(string,string,map[string]bool) (map[string]string)
+  putF func(string,string,map[string]bool) (error,map[string]string)
   ml mlog.MLog
 )
 
@@ -70,26 +70,32 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     getOV:= r.FormValue("ov")
     getOVbool,_ := strconv.ParseBool(getOV)
     option:= map[string]bool{"ov":getOVbool}
-    values := putF(key,value,option)
-    succ, _:= strconv.ParseBool(values["succ"])
-    group := make(map[string]string)
-    if succ {
-      if (getOVbool) {
-        ov := values["ov"]
-        group["ov"] = ov
+    err,values := putF(key,value,option)
+    if (err == nil) {
+
+      succ, _:= strconv.ParseBool(values["succ"])
+      group := make(map[string]string)
+      if succ {
+        if (getOVbool) {
+          ov := values["ov"]
+          group["ov"] = ov
+        }
+        group["key"] =key
+        group["value"] = value
+        group["succ"] = "true"
+      } else {
+        group["succ"] = "false"
       }
-      group["key"] =key
-      group["value"] = value
-      group["succ"] = "true"
+      b, _ := json.MarshalIndent(group,"","  ")
+      w.Write(b)
     } else {
-      group["succ"] = "false"
+      b, _ := json.MarshalIndent(map[string]string{"succ":"false"},"","  ")
+      w.Write(b)
     }
-    b, _ := json.MarshalIndent(group,"","  ")
-    w.Write(b)
     w.Header().Set("Content-Type","text/json")
 }
 
-func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(string, string, map[string]bool) (map[string]string)) {
+func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(string, string, map[string]bool) (error,map[string]string)) {
   ml = logger
   getF = get
   putF = put

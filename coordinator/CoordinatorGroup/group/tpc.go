@@ -55,7 +55,7 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
       return RegisterReply{nil,nil,rs.ID,0,0}
     }
   }
-  return RegisterReply{nil,nil,0,0,0}
+  return RegisterReply{}
 }
 
 

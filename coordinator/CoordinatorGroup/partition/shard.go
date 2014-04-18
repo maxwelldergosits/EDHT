@@ -2,15 +2,9 @@ package partition
 import . "EDHT/common"
 
 type PartitionDelegate interface {
-  UpdateShard(*Shard)
-  GetInfo(*Shard)
-  CopyDiff(*Shard, *Shard,uint64,uint64) bool
-  DeleteDiff(*Shard,uint64,uint64)
-}
-type ShardDelegate interface {
   GetDaemon(uint64) RemoteServer
+  DeleteDaemon(uint64)
   GetLocalID() uint64
-  DeleteDaemon(uint64) bool
 }
 
 type Shard struct {
@@ -18,7 +12,7 @@ type Shard struct {
   End uint64
   daemons map[uint64]bool
   Keys uint
-  delegate ShardDelegate
+  delegate PartitionDelegate
 }
 
 type PartitionSet struct {

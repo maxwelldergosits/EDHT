@@ -39,6 +39,18 @@ func MakePartitionSet(ns []ShardCopy, del PartitionDelegate) *PartitionSet{
     del}
 }
 
+func (pts * PartitionSet) GetShardCopies() []ShardCopy {
+  scs := make([]ShardCopy,len(pts.shards))
+  for i := range pts.shards {
+    shard := pts.shards[i]
+    scs[i] = ShardCopy {
+      Start:shard.Start,
+      End:shard.End,
+      Daemons:shard.daemons}
+  }
+  return scs
+}
+
 // n must be a postive power of two, 2 4 8 16 32 etc
 func MakeKeySpace(n int, del PartitionDelegate) *PartitionSet {
 
@@ -112,35 +124,4 @@ func ( t * PartitionSet) AddDaemon(id uint64) {
   slot := int(djb2(id) % uint64(len(t.shards)))
   t.shards[slot].daemons[id]= true
 }
-
-
-
-func (t * PartitionSet) GatherInfo() {
-
-  done := make(chan bool)
-  for _,shard := range t.shards {
-    t.d.GetInfo(shard)
-    done <- true
-  }
-  for _ = range t.shards {
-    <- done
-  }
-
-}
-
-func (t * PartitionSet) UpdateInfo() {
-
-  done := make(chan bool)
-  for _,shard := range t.shards {
-    go func () {
-      t.d.UpdateShard(shard)
-      done <- true
-    }()
-  }
-  for _ = range t.shards {
-    <- done
-  }
-
-}
-
 

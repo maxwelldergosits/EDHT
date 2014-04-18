@@ -8,17 +8,22 @@ import (
   "EDHT/utils"
 )
 type CoordinatorGroup struct {
-  pts *partition.PartitionSet
-  gms group.Group
+  Pts *partition.PartitionSet
+  Gms group.Group
 }
 
 
-func NewCoodinatorGroup(nshards,failures int, logger mlog.MLog) CoordinatorGroup{
+func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog) CoordinatorGroup{
 
-  return CoordinatorGroup{}
+  newG := group.NewGroup(uint(nshards),uint(failures),port,addr,logger)
+
+  del := &PD{newG}
+  pts := partition.MakeKeySpace(nshards,del)
+
+  return CoordinatorGroup{pts,newG}
 }
 
-func ConnectToGroup(groupAddress, groupPort, address, port string) (CoordinatorGroup, error) {
+func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.MLog) (CoordinatorGroup, error) {
 
   mid := utils.GenMachineId()
 
@@ -26,18 +31,19 @@ func ConnectToGroup(groupAddress, groupPort, address, port string) (CoordinatorG
   if (err != nil) {
     return CoordinatorGroup{},err
   }
-  g, nil := group.JoinGroup(rr)
-  ps := partition.MakePartitionSet(pr,new(PD))
+  g := group.JoinGroup(rr,logger)
+  del := &PD{g}
+  ps := partition.MakePartitionSet(pr,del)
   return CoordinatorGroup{
     ps,
     g},nil
 }
 
-func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff) (error){
+func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * partition.PartitionSet) (error){
   // Two phase commit
   return nil
 }
 
 func (cg * CoordinatorGroup) GetPartitions() (*partition.PartitionSet) {
-  return cg.pts
+  return cg.Pts
 }

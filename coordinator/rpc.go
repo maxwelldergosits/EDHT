@@ -2,19 +2,16 @@ package main
 
 import (
   . "EDHT/common"
-  "EDHT/coordinator/CoordinatorGroup/group"
   "net/rpc"
   "net"
   "net/http"
   "log"
 )
-var g group.Group // one piece of state, becuase of rpc
 
 type Coordinator int
 
-func CoordinatorStartServer(ip string, port string, gg group.Group) {
+func CoordinatorStartServer(ip string, port string) {
 
-  g = gg
   reg := new(Coordinator)
   rpc.Register(reg)
   rpc.HandleHTTP()
@@ -27,9 +24,11 @@ func CoordinatorStartServer(ip string, port string, gg group.Group) {
 }
 
 // this rpc call prompts reciever to add this new server to the group
-func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) error {
+func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res *ConnectReply) error {
 
-  *res = g.AttachRSToGroup_local(ns)
+  rr := gc.Gms.AttachRSToGroup_local(ns)
+  scs := gc.GetPartitions().GetShardCopies()
+  *res = ConnectReply{rr,scs}
   return nil
 
 }
@@ -37,7 +36,7 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res * RegisterReply) err
 //rpc to precommit
 func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * bool) error {
 
-  *res = g.PreCommit(*ns)
+  *res = gc.Gms.PreCommit(*ns)
   return nil
 
 }
@@ -45,7 +44,7 @@ func (t * Coordinator) ProposeRegister(ns * RemoteServer, res * bool) error {
 //rpc for commit
 func (t * Coordinator) Register(ns * RemoteServer, res * bool) error{
 
-  g.LocalCommit(*ns)
+  gc.Gms.LocalCommit(*ns)
   *res = true
   return nil
 
@@ -54,7 +53,7 @@ func (t * Coordinator) Register(ns * RemoteServer, res * bool) error{
 //RPC to abort
 func (t * Coordinator) RollbackRegister(ns * RemoteServer, res * bool) error {
 
-  g.LocalAbort(*ns)
+  gc.Gms.LocalAbort(*ns)
   *res = true
   return nil
 
