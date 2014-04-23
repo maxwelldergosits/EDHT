@@ -48,13 +48,15 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   t := utils.InitTPC(acceptors,g.id,lpc,lc,la,rpc,rc,ra,failure)
 
   ok,_ := t.Run()
-  if (ok!=nil){
+  if (ok==nil){
+    g.ml.VPrintln("debug","successfully added server")
     if rs.Coordinator {
       return RegisterReply{g.coordinators,g.daemons,rs.ID,g.nshards,g.nfailures}
     }else {
       return RegisterReply{nil,nil,rs.ID,0,0}
     }
   }
+  g.ml.VPrintln("debug","didn't add server",ok.Error())
   return RegisterReply{}
 }
 

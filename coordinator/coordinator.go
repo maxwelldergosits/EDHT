@@ -37,6 +37,7 @@ var (
   dataDir string
   disableLog bool
   groupPort string
+  recalcTime int
   ml mlog.MLog
 
 
@@ -55,7 +56,7 @@ func main() {
 
   if(groupconnect) {
     var err error
-    gc, err = CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port,ml)
+    gc, err = CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port,ml,newDaemon)
 
     if err != nil {
       ml.NPrintf("Error: %s, Couldn't join group shutting down\n",err.Error())
@@ -68,14 +69,16 @@ func main() {
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
 
-      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,port,ip,ml)
+      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,port,ip,ml,newDaemon)
   }
   go CoordinatorStartServer(ip,port)
-  startRecalc()
+  startRecalc(recalcTime)
   web_interface.StartUp(ml,port+"8",GetKey,PutKey)
 
 }
 
-
+func newDaemon(nd uint64) {
+  gc.Pts.AddDaemon(nd)
+}
 
 

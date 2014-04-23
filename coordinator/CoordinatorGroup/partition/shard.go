@@ -1,10 +1,12 @@
 package partition
 import . "EDHT/common"
+import "github.com/mad293/mlog"
 
 type PartitionDelegate interface {
   GetDaemon(uint64) RemoteServer
   DeleteDaemon(uint64)
   GetLocalID() uint64
+  Logger() *mlog.MLog
 }
 
 type Shard struct {
@@ -18,6 +20,9 @@ type Shard struct {
 type PartitionSet struct {
   shards []*Shard
   d PartitionDelegate
+  tpcInProgress bool
+  newPTS *PartitionSet
+  updateID uint64
 }
 
 type Diff struct {

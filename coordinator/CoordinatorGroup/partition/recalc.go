@@ -34,13 +34,14 @@ func (t * PartitionSet) Copy() (PartitionSet) {
     }
     newShards[i] = &Shard{oS.Start,oS.End,newMap,oS.Keys,oS.delegate}
   }
-  return PartitionSet{newShards,t.d}
+  return PartitionSet{newShards,t.d,false,nil,0}
 }
 
 func (o* PartitionSet) Recalc(keys []uint) PartitionSet{
   t := o.Copy()
 
   for i:=1; i < len(t.shards); i++ {
+    o.d.Logger().VPrintln("recalc","i=",i)
 
     shard_1 := t.shards[i-1].Copy()
     shard_2 := t.shards[i].Copy()
@@ -55,6 +56,7 @@ func (o* PartitionSet) Recalc(keys []uint) PartitionSet{
     k2 := keys[i]
 
     pdiff := pd(k1,k2)
+    o.d.Logger().VPrintln("recalc","pdiff=",pdiff)
 
     if pdiff < -.05 {
       e_1n := uint64(-pdiff * f * float32(e2-s2) + float32(e1))

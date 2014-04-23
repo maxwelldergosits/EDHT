@@ -4,10 +4,10 @@ import (
 )
 
 
-func startRecalc() {
+func startRecalc(n int) {
 
 
-  go loop(10)
+  go loop(n)
 
 }
 

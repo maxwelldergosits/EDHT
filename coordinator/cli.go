@@ -33,6 +33,7 @@ func registerCLA() ([]string,bool,int,int) {
   //group configuration options
   flag.IntVar(&nshards, "shards",1,"Number of \"shards\" of data")
   flag.IntVar(&failures,"failures",0,"Number of failures tolerated")
+  flag.IntVar(&recalcTime,"recalc-time",100,"time to wait inbetween recalcs")
 
   // local file options
   flag.StringVar(&logDir, "log-dir","","Directory output for log files (default is the current directory) directory must exist")

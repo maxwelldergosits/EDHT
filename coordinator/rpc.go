@@ -5,6 +5,7 @@ import (
   "net/rpc"
   "net"
   "net/http"
+  "EDHT/coordinator/CoordinatorGroup/partition"
   "log"
 )
 
@@ -29,6 +30,7 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res *ConnectReply) error
   rr := gc.Gms.AttachRSToGroup_local(ns)
   scs := gc.GetPartitions().GetShardCopies()
   *res = ConnectReply{rr,scs}
+  ml.VPrintln("debug",*res)
   return nil
 
 }
@@ -57,4 +59,24 @@ func (t * Coordinator) RollbackRegister(ns * RemoteServer, res * bool) error {
   *res = true
   return nil
 
+}
+type PreCommitRequest struct {
+  Pts partition.PartitionSet
+  Id uint64
+}
+func (t * Coordinator) PreCommitPartition(pts PreCommitRequest, res * bool) error {
+
+  *res = gc.Pts.PreCommit(pts.Pts,pts.Id)
+  return nil
+}
+
+func (t * Coordinator) CommitPartition(id uint64, res * bool) error {
+
+  *res = gc.Pts.Commit(id)
+  return nil
+}
+func (t * Coordinator) AbortPartition(id uint64, res * bool) error {
+
+  *res = gc.Pts.Abort(id)
+  return nil
 }

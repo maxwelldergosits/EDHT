@@ -1,11 +1,11 @@
 package main
 
 import (
-  . "EDHT/common"
   "fmt"
-  "EDHT/common/group"
   "flag"
   "os"
+  "EDHT/utils"
+  "EDHT/common/rpc_stubs"
   "github.com/mad293/mlog"
   "strings"
 )
@@ -67,13 +67,12 @@ func main() {
   ml.VPrintln("info","port:",port)
   ml.VPrintln("info","ip-address:",ip)
 
-  group.InitGroup(ml,nil)
-
-  id := group.JoinGroupAsDaemon(groupAddress,groupPort,ip,port)
-  if (id == 0) {
+  rr,_,err := rpc_stubs.AttachToGroupRPC(false,ip,port,utils.GenMachineId(),groupAddress+":"+groupPort)
+  if (err!=nil) {
     ml.NPrintln("Couldn't join group, Exiting")
     os.Exit(1)
   }
+  id =rr.ID
   startServer(ip,port)
 
 }

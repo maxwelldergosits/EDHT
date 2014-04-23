@@ -51,3 +51,4 @@ func AttachToGroupRPC(coordinator bool, laddr, lport string, mid uint64, addr st
   }
   return res.RegReply, res.Partitions, err
 }
+

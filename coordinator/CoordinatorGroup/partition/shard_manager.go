@@ -36,7 +36,7 @@ func MakePartitionSet(ns []ShardCopy, del PartitionDelegate) *PartitionSet{
   }
   return &PartitionSet{
     shards,
-    del}
+    del,false,nil,0}
 }
 
 func (pts * PartitionSet) GetShardCopies() []ShardCopy {
@@ -63,7 +63,7 @@ func MakeKeySpace(n int, del PartitionDelegate) *PartitionSet {
     shards_map[i] = ns
   }
 
-  return &PartitionSet{shards_map,del}
+  return &PartitionSet{shards_map,del,false,nil,0}
 
 }
 

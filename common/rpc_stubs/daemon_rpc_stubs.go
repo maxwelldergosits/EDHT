@@ -113,6 +113,22 @@ func RetrieveKeysInRangeDaemonRPC(start, end string, od RemoteServer, rs RemoteS
 
 
 }
+func DeleteKeysInRangeDaemonRPC(start, end string, rs RemoteServer) (error) {
+
+
+  ra := Range{start,end}
+
+  client, err := utils.MakeConnection(rs)
+  if err != nil {
+    return errors.New("dialing error:"+err.Error())
+  }
+
+  var reply bool
+  err = client.Call("Daemon.DeleteKeysInRange",ra,&reply)
+  return err
+
+
+}
 
 func CommitKeysDaemonRPC(keys []string, rs RemoteServer) error {
 

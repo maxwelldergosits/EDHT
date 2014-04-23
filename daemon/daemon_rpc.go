@@ -86,6 +86,14 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
   return nil
 }
 
+func (t * Daemon) DeleteKeysInRange(ra Range, succ * bool) error {
+
+
+  iterateKeys(func(key,value string) {deleteKey(key)})
+  return nil
+
+}
+
 func (t * Daemon) CommitKeys(keys []string, reply *bool) error {
 
   for i := range keys {

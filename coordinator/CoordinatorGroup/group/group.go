@@ -19,7 +19,7 @@ type Group struct {
   newDaemonCallBack func(uint64)
 }
 
-func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.MLog) Group{
+func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.MLog, cb func(uint64)) Group{
   newGroup := Group{}
   newGroup.coordinators = make(map[uint64]RemoteServer)
   newGroup.daemons = make(map[uint64]RemoteServer)
@@ -36,12 +36,14 @@ func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.ML
     Coordinator:true}
 
   newGroup.coordinators[me.ID] = me
+  newGroup.newDaemonCallBack = cb
 
   return newGroup
 }
 
-func JoinGroup(regReply RegisterReply, logger mlog.MLog) (Group) {
+func JoinGroup(regReply RegisterReply, logger mlog.MLog, cb func(uint64)) (Group) {
   newGroup := Group{}
+  logger.VPrintln("debug",regReply)
   newGroup.coordinators = regReply.Coordinators
   newGroup.daemons = regReply.Daemons
   newGroup.ml = logger
@@ -49,6 +51,7 @@ func JoinGroup(regReply RegisterReply, logger mlog.MLog) (Group) {
   newGroup.nshards = regReply.Nshards
   newGroup.nfailures = regReply.Nfailures
   newGroup.pendingCommits = make(map[uint64]RemoteServer)
+  newGroup.newDaemonCallBack = cb
 
   return newGroup
 }
@@ -79,4 +82,8 @@ func (g * Group) GetID() uint64{
 
 func (g * Group) GetCoordinator(d uint64) RemoteServer{
   return g.coordinators[d]
+}
+
+func (g * Group) Coordinators() map[uint64]RemoteServer {
+  return g.coordinators
 }
