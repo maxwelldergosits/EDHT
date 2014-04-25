@@ -32,9 +32,19 @@ func recalc() {
     return
   }
 
-  diffs,newPTS:= pts.CalculateDiffs(keys)
 
-  err = gc.UpdatePartitions(diffs,newPTS) //if it fails, thats okay
+
+  diffs,npts:= pts.CalculateDiffs(keys)
+  ml.VPrintln("recalc","keys:",keys)
+  ml.VPrintln("recalc", "ranges:",npts.Ranges())
+
+  if !npts.Verify() {
+    ml.VPrintln("recalc","new partition invalid")
+  }
+  ml.VPrintln("recalc","diffs:",diffs)
+
+  err = gc.UpdatePartitions(diffs,npts) //if it fails, thats okay
+
   if err != nil {
     ml.VPrintln("recalc", "Recalculation Error:",err.Error())
   } else {

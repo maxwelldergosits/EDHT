@@ -44,6 +44,17 @@ var (
   gc CoordinatorGroup.CoordinatorGroup // coordinated state.
 )
 
+type WD int
+
+func (w * WD) GetF(key string) (string,error) {
+  return GetKey(key)
+}
+func (w * WD) PutF(k,v string,info map[string]bool) (error, map[string]string) {
+  return PutKey(k,v,info)
+}
+func (w * WD) Info(i int) []uint {
+  return GetInfo(i)
+}
 
 func main() {
 
@@ -73,7 +84,10 @@ func main() {
   }
   go CoordinatorStartServer(ip,port)
   startRecalc(recalcTime)
-  web_interface.StartUp(ml,port+"8",GetKey,PutKey)
+
+
+
+  web_interface.StartUp(ml,port+"8",new(WD))
 
 }
 

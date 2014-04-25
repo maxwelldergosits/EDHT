@@ -18,6 +18,7 @@ var (
 
 //insert value in tuple into hashtable.
 func insert(pair Tuple){
+  ml.VPrintln("kv","Adding key:",pair.Key)
 	data[pair.Key]= pair.Value
 }
 

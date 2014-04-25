@@ -30,7 +30,6 @@ func (t * Coordinator) AttachRSToGroup(ns RemoteServer, res *ConnectReply) error
   rr := gc.Gms.AttachRSToGroup_local(ns)
   scs := gc.GetPartitions().GetShardCopies()
   *res = ConnectReply{rr,scs}
-  ml.VPrintln("debug",*res)
   return nil
 
 }

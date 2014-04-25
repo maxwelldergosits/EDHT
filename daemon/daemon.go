@@ -6,6 +6,7 @@ import (
   "os"
   "EDHT/utils"
   "EDHT/common/rpc_stubs"
+  . "EDHT/common"
   "github.com/mad293/mlog"
   "strings"
 )
@@ -67,7 +68,14 @@ func main() {
   ml.VPrintln("info","port:",port)
   ml.VPrintln("info","ip-address:",ip)
 
-  rr,_,err := rpc_stubs.AttachToGroupRPC(false,ip,port,utils.GenMachineId(),groupAddress+":"+groupPort)
+
+  rs := RemoteServer{
+    Address:groupAddress,
+    Port:groupPort,
+    ID:0,
+    Coordinator:true}
+
+  rr,_,err := rpc_stubs.AttachToGroupRPC(false,ip,port,utils.GenMachineId(),rs)
   if (err!=nil) {
     ml.NPrintln("Couldn't join group, Exiting")
     os.Exit(1)

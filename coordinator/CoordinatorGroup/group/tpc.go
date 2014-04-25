@@ -25,16 +25,16 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   }
 
   var rpc = func(v RemoteServer)(bool,error){
-    return rpc_stubs.PropseRegisterRPC(&rs,v.Address+":"+v.Port)
+    return rpc_stubs.PropseRegisterRPC(&rs,v)
   }
 
   var rc = func(v RemoteServer)map[string]string{
-    rpc_stubs.RegisterRPC(&rs,v.Address+":"+v.Port)
+    rpc_stubs.RegisterRPC(&rs,v)
     return nil
   }
 
   var ra = func(v RemoteServer)map[string]string {
-    rpc_stubs.RollBackRegisterRPC(&rs,v.Address+":"+v.Port)
+    rpc_stubs.RollBackRegisterRPC(&rs,v)
     return nil
   }
   var acceptors map[uint64]RemoteServer = make(map[uint64]RemoteServer)
@@ -49,14 +49,13 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
   ok,_ := t.Run()
   if (ok==nil){
-    g.ml.VPrintln("debug","successfully added server")
     if rs.Coordinator {
       return RegisterReply{g.coordinators,g.daemons,rs.ID,g.nshards,g.nfailures}
     }else {
       return RegisterReply{nil,nil,rs.ID,0,0}
     }
   }
-  g.ml.VPrintln("debug","didn't add server",ok.Error())
+  g.ml.VPrintln("gms","didn't add server",ok.Error())
   return RegisterReply{}
 }
 

@@ -67,7 +67,11 @@ func (shard * Shard) getValue(key string) (string,error) {
 }
 
 func (shard * Shard) Put(key,value string, options map[string]bool) (error,map[string]string) {
- return shard.tryTPC(key,value,options)
+ err,info:= shard.tryTPC(key,value,options)
+  if err==nil {
+    info["succ"] = "true"
+  }
+  return err,info
 }
 
 
@@ -100,7 +104,7 @@ func (pts * PartitionSet) ApplyDiffs(diffs []Diff) {
   deleteDiffs := make([]Diff,0)
 
   for i := range diffs {
-    if diffs[i].To == -1 {
+    if diffs[i].From == -1 {
       deleteDiffs = append(deleteDiffs,diffs[i])
     } else {
       copyDiffs = append(copyDiffs,diffs[i])
@@ -114,7 +118,7 @@ func (pts * PartitionSet) ApplyDiffs(diffs []Diff) {
 
   for i := range deleteDiffs {
     diff := deleteDiffs[i]
-    pts.shards[diff.From].DeleteKs(diff.Start,diff.End)
+    pts.shards[diff.To].DeleteKs(diff.Start,diff.End)
   }
 
 }

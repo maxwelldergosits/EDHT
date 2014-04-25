@@ -32,14 +32,14 @@ import (
   "net/http"
   "log"
   "fmt"
+  "strings"
   "encoding/json"
   "strconv"
   "github.com/mad293/mlog"
 )
 
 var (
-  getF func(key string) (string,error)
-  putF func(string,string,map[string]bool) (error,map[string]string)
+  delegate WebDelegate
   ml mlog.MLog
 )
 
@@ -49,7 +49,7 @@ func gethandler(w http.ResponseWriter, r *http.Request) {
 func getshandler(w http.ResponseWriter, r *http.Request) {
 
     key:=r.FormValue("key")
-    value,err := getF(key)
+    value,err := delegate.GetF(key)
     if err != nil {
       value = "error"
     }
@@ -70,7 +70,7 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     getOV:= r.FormValue("ov")
     getOVbool,_ := strconv.ParseBool(getOV)
     option:= map[string]bool{"ov":getOVbool}
-    err,values := putF(key,value,option)
+    err,values := delegate.PutF(key,value,option)
     if (err == nil) {
 
       succ, _:= strconv.ParseBool(values["succ"])
@@ -95,15 +95,26 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type","text/json")
 }
 
-func StartUp(logger mlog.MLog,port string, get func(key string)(string,error), put func(string, string, map[string]bool) (error,map[string]string)) {
+
+func infoHandler(w http.ResponseWriter, r * http.Request) {
+  uri := r.RequestURI
+  if strings.Contains(uri,"keys") {
+    keys := delegate.Info(1)
+    b, _ := json.MarshalIndent(keys,"","  ")
+    w.Write(b)
+  }
+  ml.VPrintln("web",uri)
+}
+
+func StartUp(logger mlog.MLog,port string,del WebDelegate) {
   ml = logger
-  getF = get
-  putF = put
+  delegate = del
   ml.VPrintln("web","starting web inteface")
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)
   http.HandleFunc("/get",gethandler)
   http.HandleFunc("/get/submit",getshandler)
+  http.HandleFunc("/stats/balance/",infoHandler)
   log.Fatal(http.ListenAndServe(":"+port, nil))
 }

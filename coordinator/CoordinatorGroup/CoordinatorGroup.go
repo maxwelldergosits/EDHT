@@ -27,8 +27,13 @@ func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog
 func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.MLog,cb func(uint64)) (CoordinatorGroup, error) {
 
   mid := utils.GenMachineId()
+  rs := RemoteServer{
+    groupAddress,
+    groupPort,
+    0,
+    false}
 
-  rr,pr, err := rpc_stubs.AttachToGroupRPC(true,address,port,mid,address+":"+groupPort)
+  rr,pr, err := rpc_stubs.AttachToGroupRPC(true,address,port,mid,rs)
   if (err != nil) {
     return CoordinatorGroup{},err
   }

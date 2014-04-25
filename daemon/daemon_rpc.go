@@ -52,7 +52,6 @@ func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
 // arg = 1 if you want the number of keys
 // arg = 2 if you want the number of bytes
 func (t * Daemon) GetInfo(arg uint, reply * int) error {
-  ml.NPrintln("Getting Info")
   switch arg {
     case 1:
       *reply = int(NKeys())

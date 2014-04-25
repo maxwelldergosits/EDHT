@@ -8,6 +8,12 @@ import (
   "net/rpc"
 )
 
+var connections map[uint64]*rpc.Client
+func init() {
+
+  connections = make(map[uint64]*rpc.Client)
+}
+
 func ValidateIP(ip string) bool {
 
    if net.ParseIP(ip) == nil {
@@ -30,7 +36,13 @@ func ValidatePort(port string) bool {
 // right now doesn't do much right now will cache connections when I get around to it (Maxwell)
 func MakeConnection(rs RemoteServer) (*rpc.Client, error) {
 
+  v := connections[rs.ID]
+  if v != nil {
+    return v,nil
+  }
+
   client,err := rpc.DialHTTP("tcp",rs.Address+":"+rs.Port)
+  connections[rs.ID] = client
 
   return client,err
 

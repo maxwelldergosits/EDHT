@@ -43,7 +43,6 @@ func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.ML
 
 func JoinGroup(regReply RegisterReply, logger mlog.MLog, cb func(uint64)) (Group) {
   newGroup := Group{}
-  logger.VPrintln("debug",regReply)
   newGroup.coordinators = regReply.Coordinators
   newGroup.daemons = regReply.Daemons
   newGroup.ml = logger
