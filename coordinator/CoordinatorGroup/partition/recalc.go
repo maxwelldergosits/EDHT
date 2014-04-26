@@ -2,8 +2,8 @@ package partition
 
 func init() {
 
-  f = .2
-  thres = .5
+  f = .05
+  thres = .05
 }
 
 func pd(e,a uint) float32 {
