@@ -102,6 +102,17 @@ func infoHandler(w http.ResponseWriter, r * http.Request) {
     keys := delegate.Info(1)
     b, _ := json.MarshalIndent(keys,"","  ")
     w.Write(b)
+  } else if strings.Contains(uri,"heat") {
+    keys := delegate.Info(1)
+    sizes := delegate.Info(2)
+    out := make([]map[string]uint64,len(keys))
+    for i := range keys {
+      out[i] = make(map[string]uint64)
+      out[i]["keys"] = keys[i]
+      out[i]["size"] = sizes[i]
+    }
+    b, _ := json.MarshalIndent(out,"","  ")
+    w.Write(b)
   }
   ml.VPrintln("web",uri)
 }

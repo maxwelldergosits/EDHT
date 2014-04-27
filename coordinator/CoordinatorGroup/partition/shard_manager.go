@@ -122,6 +122,7 @@ func unconv(n uint64) string {
 // Argument : id of the daemon
 func ( t * PartitionSet) AddDaemon(id uint64) {
   slot := int(djb2(id) % uint64(len(t.shards)))
+  t.d.Logger().VPrintln("gms","added daemon to shard",slot)
   t.shards[slot].daemons[id]= true
 }
 

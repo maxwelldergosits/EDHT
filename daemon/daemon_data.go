@@ -23,11 +23,11 @@ func insert(pair Tuple){
 }
 
 //return value corresponding to 'key'
-func lookup(key string) (string, error){
+func lookup(key string) (string, bool,error){
   if val, ok := data[key];ok {
-    return val,nil
+    return val,true,nil
   }
-	return "", errors.New("daemon lookup error: nonexistent key.")
+	return "", false, errors.New("daemon lookup error: nonexistent key.")
 }
 
 

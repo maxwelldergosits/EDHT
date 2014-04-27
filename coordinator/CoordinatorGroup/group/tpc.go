@@ -72,7 +72,6 @@ func (g * Group) LocalCommit(rs RemoteServer){
   if rs.Coordinator {
     g.coordinators[rs.ID]=rs
   } else {
-    g.ml.VPrintln("gms","added new Daemon")
     g.newDaemonCallBack(rs.ID)
     g.daemons[rs.ID]=rs
   }

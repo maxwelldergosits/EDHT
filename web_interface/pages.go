@@ -9,6 +9,7 @@ var putForm =  `
 <form action="/put/submit">
 Key: <input type="text" name="key" value=""><br>
 Value: <input type="text" name="value" value=""><br>
+Get Old Value: <input type="checkbox" name="ov" value="true"><br>
 <input type="submit" value="Submit">
 </form>
 

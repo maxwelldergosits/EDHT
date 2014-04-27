@@ -3,6 +3,7 @@ package partition
 
 import (
   "EDHT/common/rpc_stubs"
+  . "EDHT/common"
   "errors"
   "EDHT/utils"
 )
@@ -98,23 +99,45 @@ func (pts * PartitionSet) GetNKeysForEachShard() ([]uint,error) {
 }
 
 
-func (pts * PartitionSet) ApplyDiffs(diffs []Diff) {
+func (pts * PartitionSet) ApplyCopyDiffs(diffs []Diff) bool{
 
   copyDiffs := make([]Diff,0)
-  deleteDiffs := make([]Diff,0)
 
   for i := range diffs {
     if diffs[i].From == -1 {
-      deleteDiffs = append(deleteDiffs,diffs[i])
     } else {
       copyDiffs = append(copyDiffs,diffs[i])
     }
   }
 
+  done := make(chan bool, len(copyDiffs))
   for i := range copyDiffs {
     diff := copyDiffs[i]
-    pts.shards[diff.To].CopyKVs(pts.shards[diff.From],diff.Start,diff.End)
+
+    go func(diff Diff) {
+      done <- pts.shards[diff.To].CopyKVs(pts.shards[diff.From],diff.Start,diff.End)
+    }(diff)
+
   }
+
+  succ := true
+  for i:= 0; i < len(copyDiffs); i++ {
+    succ =(succ && <-done)
+  }
+
+  return succ
+}
+
+func (pts * PartitionSet) ApplyDeleteDiffs(diffs []Diff) {
+
+  deleteDiffs := make([]Diff,0)
+
+  for i := range diffs {
+    if diffs[i].From == -1 {
+      deleteDiffs = append(deleteDiffs,diffs[i])
+    }
+  }
+
 
   for i := range deleteDiffs {
     diff := deleteDiffs[i]
@@ -123,14 +146,25 @@ func (pts * PartitionSet) ApplyDiffs(diffs []Diff) {
 
 }
 
-func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) {
+func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) bool {
 
+  num_daemons := len(*shard.Daemons())
+  results := make(chan int,len(*shard.Daemons()))
   for k,_ := range *shard.Daemons() {
     fromServer := shard.delegate.GetDaemon(otherShard.getDaemon())
     toServer   := shard.delegate.GetDaemon(k)
-    rpc_stubs.RetrieveKeysInRangeDaemonRPC(unconv(start),unconv(end),fromServer,toServer)
+    go func(fromServer,toServer RemoteServer) {
+      keys, _ := rpc_stubs.RetrieveKeysInRangeDaemonRPC(unconv(start),unconv(end),fromServer,toServer)
+      results <- len(keys)
+    }(fromServer,toServer)
   }
-
+  num := <- results
+  succ := true
+  for i := 1; i < num_daemons; i++ {
+    res := <- results
+    succ = succ && (num == res)
+  }
+  return succ
 }
 
 func (shard * Shard) DeleteKs(start, end uint64) {

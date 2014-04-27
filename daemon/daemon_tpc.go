@@ -30,19 +30,17 @@ func commit(key string) string{
 
   t := Tuple{key,pendingCommmits[key]}
 
-  nbs := 0
-  ov, err := lookup(key)
+  ov,replace,err := lookup(key)
 
-
-// update the stats on number of keys and data
-  if ov != "" || err != nil {
+  if (err!=nil || !replace) { // there wasn't a key here
     addkey(1)
-    nbs += len(key)
+    addbytes(len(t.Value))
   } else {
-    nbs -= (len(ov))
+    addbytes(len(t.Value)-len(ov))
   }
-  nbs += len(t.Value)
-  addbytes(nbs)
+
+  ml.NPrintln("ov:",ov)
+  // update the stats on number of keys and data
 
   insert(t)
   delete(pendingCommmits,key)

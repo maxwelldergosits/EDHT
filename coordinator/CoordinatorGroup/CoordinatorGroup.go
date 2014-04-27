@@ -48,13 +48,14 @@ func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.M
 func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * partition.PartitionSet) (error){
   // Two phase commit
   updateID := utils.GetTimeNano()
+  var succ bool = false
 
   localPreCommit := func() {
     cg.Pts.PreCommit(*newPTS,updateID)
   }
 
   localCommit := func() {
-    cg.Pts.ApplyDiffs(diffs)
+    succ = cg.Pts.ApplyCopyDiffs(diffs)
     cg.Pts.Commit(updateID)
   }
   localAbort := func() {
@@ -82,6 +83,9 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
                   failure)
 
   err, _ := tpc.Run()
+  if (err == nil && succ) {
+    cg.Pts.ApplyDeleteDiffs(diffs)
+  }
   return err
 }
 

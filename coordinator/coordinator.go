@@ -52,7 +52,7 @@ func (w * WD) GetF(key string) (string,error) {
 func (w * WD) PutF(k,v string,info map[string]bool) (error, map[string]string) {
   return PutKey(k,v,info)
 }
-func (w * WD) Info(i int) []uint {
+func (w * WD) Info(i int) []uint64 {
   return GetInfo(i)
 }
 
