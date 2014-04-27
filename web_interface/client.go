@@ -65,6 +65,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, putForm)
 }
 func shandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type","text/json")
     key:= r.FormValue("key")
     value:= r.FormValue("value")
     getOV:= r.FormValue("ov")
@@ -97,6 +98,7 @@ func shandler(w http.ResponseWriter, r *http.Request) {
 
 
 func infoHandler(w http.ResponseWriter, r * http.Request) {
+    w.Header().Set("Content-Type","text/json")
   uri := r.RequestURI
   if strings.Contains(uri,"keys") {
     keys := delegate.Info(1)
