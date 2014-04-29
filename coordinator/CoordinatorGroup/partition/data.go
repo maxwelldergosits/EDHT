@@ -68,11 +68,21 @@ func (shard * Shard) getValue(key string) (string,error) {
 }
 
 func (shard * Shard) Put(key,value string, options map[string]bool) (error,map[string]string) {
- err,info:= shard.tryTPC(key,value,options)
-  if err==nil {
-    info["succ"] = "true"
+  if (options["unsafe"]) {
+    for k,_ := range *shard.Daemons() {
+      go func(){
+        rs := shard.delegate.GetDaemon(k)
+        rpc_stubs.DaemonPutRPC(key,value,rs)
+      }()
+    }
+  return nil,map[string]string{"unsafe":"true"}
+  } else {
+    err,info:= shard.tryTPC(key,value,options)
+    if err==nil {
+      info["succ"] = "true"
+    }
+    return err,info
   }
-  return err,info
 }
 
 

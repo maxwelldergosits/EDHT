@@ -70,10 +70,11 @@ func shandler(w http.ResponseWriter, r *http.Request) {
     value:= r.FormValue("value")
     getOV:= r.FormValue("ov")
     getOVbool,_ := strconv.ParseBool(getOV)
+    unsafe, _ := strconv.ParseBool(r.FormValue("unsafe"))
     option:= map[string]bool{"ov":getOVbool}
+    option["unsafe"] = unsafe
     err,values := delegate.PutF(key,value,option)
     if (err == nil) {
-
       succ, _:= strconv.ParseBool(values["succ"])
       group := make(map[string]string)
       if succ {
@@ -89,7 +90,10 @@ func shandler(w http.ResponseWriter, r *http.Request) {
       }
       b, _ := json.MarshalIndent(group,"","  ")
       w.Write(b)
-    } else {
+    }else if (unsafe) {
+      b, _ := json.MarshalIndent(map[string]string{"unsafe":"true"},"","  ")
+      w.Write(b)
+    }else {
       b, _ := json.MarshalIndent(map[string]string{"succ":"false"},"","  ")
       w.Write(b)
     }

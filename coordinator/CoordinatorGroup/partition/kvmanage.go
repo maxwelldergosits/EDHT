@@ -46,7 +46,7 @@ func (shard * Shard) tryTPC(key string, value string, options map[string]bool) (
     delete(*shard.Daemons(),v.ID)
   }
 
-  tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure)
+  tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure,!(options["unsafe"]))
   err,info := tpc.Run()
   return err,info
 }

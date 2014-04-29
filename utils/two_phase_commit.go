@@ -29,13 +29,14 @@ type TwoPhaseCommit struct {
   remoteAbort     func(rs RemoteServer)map[string]string
 
   failure         func(rs RemoteServer)
+  wait         bool
 
 }
 
 func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
               localPreCommit func(), localCommit func(), localAbort func(),
               remotePreCommit func(rs RemoteServer)(bool,error), remoteCommit func(rs RemoteServer)map[string]string,
-              remoteAbort func(rs RemoteServer)map[string]string, failure func(rs RemoteServer)) (TwoPhaseCommit) {
+              remoteAbort func(rs RemoteServer)map[string]string, failure func(rs RemoteServer), wait bool) (TwoPhaseCommit) {
 
 
   return TwoPhaseCommit{
@@ -48,7 +49,8 @@ func InitTPC(acceptors map[uint64]RemoteServer, id uint64,
       remotePreCommit,
       remoteCommit,
       remoteAbort,
-      failure}
+      failure,
+      wait}
 
 
 }
@@ -93,6 +95,12 @@ func (t * TwoPhaseCommit) Run() (error,map[string]string){
 
   var ret map[string]string
 
+  if doCommit {
+    t.localCommit()
+  } else {
+    t.localAbort()
+  }
+
   for k,v := range t.acceptors {
     if (k == t.id) {continue}
     n++
@@ -101,13 +109,10 @@ func (t * TwoPhaseCommit) Run() (error,map[string]string){
       done <- false//value doesn't matter
     }(v)
   }
-  if doCommit {
-    t.localCommit()
-  } else {
-    t.localAbort()
-  }
-  for i:=0; i<n;i++ {
-    <-done
+  if (t.wait) {
+    for i:=0; i<n;i++ {
+      <-done
+    }
   }
   if !doCommit {
     return errors.New("Commit Failed"),nil

@@ -5,6 +5,20 @@ import (
   "errors"
 )
 
+func DaemonPutRPC(key, value string,rs RemoteServer) (bool,error) {
+  client,err := utils.MakeConnection(rs)
+  if err != nil {
+    return false,errors.New("dialing error:"+err.Error())
+  }
+
+  tuple := Tuple{key,value}
+
+  var reply bool
+  err = client.Call("Daemon.Put",tuple,&reply)
+  return reply,err
+
+}
+
 func PreCommitDaemonRPC(req PutRequest, rs RemoteServer) (bool,error) {
   client, err := utils.MakeConnection(rs)
   if err != nil {

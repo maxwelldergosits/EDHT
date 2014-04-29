@@ -45,7 +45,7 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   var failure = func(rs RemoteServer) {
     g.Delete(rs)
   }
-  t := utils.InitTPC(acceptors,g.id,lpc,lc,la,rpc,rc,ra,failure)
+  t := utils.InitTPC(acceptors,g.id,lpc,lc,la,rpc,rc,ra,failure,true)
 
   ok,_ := t.Run()
   if (ok==nil){

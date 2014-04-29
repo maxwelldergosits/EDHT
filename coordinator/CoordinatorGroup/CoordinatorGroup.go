@@ -80,7 +80,7 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
   tpc := utils.InitTPC(acceptors,cg.Gms.GetID(),
                   localPreCommit,localCommit,localAbort,
                   remotePreCommit,remoteCommit,remoteAbort,
-                  failure)
+                  failure,true)
 
   err, _ := tpc.Run()
   if (err == nil && succ) {

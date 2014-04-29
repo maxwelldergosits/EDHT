@@ -17,11 +17,12 @@ import (
  *associated with the most recent value. The function's return value
  *is non-nil if the storage is successful. The empty string is not accepted as a valid key and
  *will result in Put failure. */
-func (t *Daemon) Put(pair Tuple, reply *string) error {
+func (t *Daemon) Put(pair Tuple, reply *bool) error {
 	if(pair.Value == "") {
 		return errors.New("daemon Put error: empty key")
 	}
 	insert(pair)
+  *reply = true
 	return nil
 }
 
