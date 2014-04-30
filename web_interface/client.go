@@ -127,6 +127,10 @@ func infoHandler(w http.ResponseWriter, r * http.Request) {
   ml.VPrintln("web",uri)
 }
 
+func genHandler(w http.ResponseWriter, r * http.Request) {
+  fmt.Fprintln(w,requests)
+}
+
 func StartUp(logger mlog.MLog,port string,del WebDelegate) {
   ml = logger
   delegate = del
@@ -137,5 +141,6 @@ func StartUp(logger mlog.MLog,port string,del WebDelegate) {
   http.HandleFunc("/get",gethandler)
   http.HandleFunc("/get/submit",getshandler)
   http.HandleFunc("/stats/balance/",infoHandler)
+  http.HandleFunc("/gen/",genHandler)
   log.Fatal(http.ListenAndServe(":"+port, nil))
 }
