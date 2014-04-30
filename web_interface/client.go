@@ -65,8 +65,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, putForm)
 }
 func shandler(w http.ResponseWriter, r *http.Request) {
-    w.Header().Set("Content-Type","text/json")
     key:= r.FormValue("key")
+    if (key == "horses") {
+      fmt.Fprintf(w,easter_egg)
+      return
+    }
+    w.Header().Set("Content-Type","text/json")
     value:= r.FormValue("value")
     getOV:= r.FormValue("ov")
     getOVbool,_ := strconv.ParseBool(getOV)

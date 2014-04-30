@@ -14,12 +14,12 @@ control_c()
 # trap keyboard interrupt (control-c)
 trap control_c SIGINT
 
-coordinator -shards=$num_shards&
+coordinator -shards=$num_shards -recalc-time=$3&
 sleep 1
 
 for i in $(seq 1 $num_coordinators);
   do
-    coordinator -port=$start_port -connect-to-group -group-port=1456 -group-address=127.0.0.1&
+    coordinator -port=$start_port -connect-to-group -group-port=1456 -group-address=127.0.0.1 -recalc-time=$3&
     start_port=$(($start_port + 1))
     sleep .2
 done
@@ -38,5 +38,6 @@ for i in $(seq 1 $num_shards);
     sleep .2
     a=$(($a + 4))
 done
+echo "done making daemons"
 while true; do sleep 10000; done
 

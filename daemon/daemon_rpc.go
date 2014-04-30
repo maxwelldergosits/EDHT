@@ -45,6 +45,7 @@ func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
 	i := 0
 	for key, _ := range data{
 		keys[i] = key
+    i+=1
 	}
 	*reply = keys
 	return nil
@@ -72,6 +73,7 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
   ks := srange.Range
 
   newKVs,err  := rpc_stubs.GetKVsInRangeDaemonRPC(ks.Start,ks.End,rs)
+  ml.NPrintln("got kvs",newKVs)
   if (err != nil) {
     *keys = nil
     return err

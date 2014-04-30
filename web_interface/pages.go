@@ -35,4 +35,16 @@ Key: <input type="text" name="key" value=""><br>
 </html>
 `
 
+var easter_egg = `
+<!DOCTYPE html>
+<html>
+<body>
+<img src="http://i.imgur.com/g07gkAP.jpg" alt="doge">
+<audio controls autoplay>
+  <source src="https://ia700702.us.archive.org/2/items/gd1977-05-08.ecm33p.moore.berger.miller.117026.flac16/gd77-05-08s2t02.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 
+</body>
+</html>
+`

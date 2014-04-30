@@ -39,7 +39,7 @@ func commit(key string) string{
     addbytes(len(t.Value)-len(ov))
   }
 
-  ml.NPrintln("ov:",ov)
+  ml.VPrintln("data","ov:",ov)
   // update the stats on number of keys and data
 
   insert(t)
