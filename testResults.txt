@@ -1,0 +1,21 @@
+Test Results
+
+Run with "request_test.py". 
+
+1) 100 put/get requests where keys=0:99 and values=0:99 respectively. Success
+    -Shortest request time: 2.1ms  2.1ms   2.17ms
+    -Longest request time: 3.5ms   4ms     4.79ms
+    -Average request time: 2.5ms   2.53ms  2.45ms
+    
+2) 10,000 put/get requests where keys=0:9999 and values=0:9999 repsectively. Success
+    -Shortest request time: 2.1ms  2.1ms
+    -Longest request time: 3.75ms  100.6ms
+    -Average request time: 2.46ms  2.49ms
+
+3) 100 put/get requests to populate DHT. 100 put/get to update previous keys. Success: subsequent gets returned new values
+
+4) 10,000 put/get requests to populate DHT. 10,000 put/get to update previous keys. Success: subsequent gets returned new values
+
+next tests: multiple clients using service simultaneously
+            multiple clients simultaneously updating same key
+            
