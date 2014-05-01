@@ -2,6 +2,8 @@ Test Results
 
 Run with "request_test.py". 
 
+----- With 3 Coordinators and 4 Daemons
+
 1) 100 put/get requests where keys=0:99 and values=0:99 respectively. Success
     -Shortest request time: 2.1ms  2.1ms   2.17ms
     -Longest request time: 3.5ms   4ms     4.79ms
@@ -19,3 +21,18 @@ Run with "request_test.py".
 next tests: multiple clients using service simultaneously
             multiple clients simultaneously updating same key
             
+------ With 10 coordinators and 20 Daemons
+
+1) 100 put/get requests where keys=0:99 and values=0:99 respectively. 
+    -Shortest request time: 
+    -Longest request time: 
+    -Average request time: 
+    
+2) 10,000 put/get requests where keys=0:9999 and values=0:9999 repsectively. 
+    -Shortest request time:
+    -Longest request time: 
+    -Average request time: 
+
+3) 100 put/get requests to populate DHT. 100 put/get to update previous keys.
+
+4) 10,000 put/get requests to populate DHT. 10,000 put/get to update previous keys.
