@@ -3,6 +3,7 @@ package main
 import (
   "flag"
   "os"
+  "time"
   "fmt"
   "strings"
 )
@@ -37,7 +38,7 @@ func registerCLA() ([]string,bool,int,int) {
 
   // local file options
   flag.StringVar(&logDir, "log-dir","","Directory output for log files (default is the current directory) directory must exist")
-  flag.StringVar(&dataDir, "data-dir","","Directory output for data files (default is the current directory) directory must exist")
+  flag.StringVar(&dataDir, "data-dir",time.Now().String(),"Directory output for data files (default is the current directory) directory must exist")
   flag.BoolVar(&disableLog, "disable-log",true,"Disable log file output")
 
 

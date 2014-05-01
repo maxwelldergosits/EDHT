@@ -7,6 +7,7 @@ import (
   "EDHT/utils"
   "EDHT/common/rpc_stubs"
   . "EDHT/common"
+  "time"
   "github.com/mad293/mlog"
   "strings"
 )
@@ -15,6 +16,7 @@ var (
   ip   string
   groupPort string
   groupAddress string
+  dataDir string
   id uint64
 
   vall bool
@@ -22,8 +24,8 @@ var (
 
   ml mlog.MLog
 
-  data map[string]string
-  preCommits map[string]string
+  data utils.StringStringMap
+  preCommits utils.StringStringMap
 )
 
 
@@ -32,6 +34,7 @@ func registerCLA(){
 
   flag.StringVar(&port, "port", "1456","Port to bind the server to")
   flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
+  flag.StringVar(&dataDir, "data-dir", time.Now().String(),"address to bind the server to")
 
   flag.BoolVar(&vall, "vall", false, "print all verbosity levels to stdout")
   var vl string
@@ -61,8 +64,8 @@ func main() {
 
  registerCLA()
 
-  preCommits = make(map[string]string)
-  data = make(map[string]string)
+  preCommits = utils.NewStringStringMap(dataDir+"data")
+  data = utils.NewStringStringMap(dataDir+"data")
   ml = mlog.Create(verboseLevels,"",true,vall)
 
   ml.VPrintln("info","port:",port)
