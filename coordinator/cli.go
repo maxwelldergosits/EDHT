@@ -20,6 +20,7 @@ func registerCLA() ([]string,bool,int,int) {
 
   // local options
   flag.StringVar(&port, "port", "1456","Port to bind the server to")
+  flag.StringVar(&web_port, "web-port", "14568","Port to bind the web server to")
   flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
   flag.StringVar(&vl, "verbose","", "comma delimited list of verbose levels you want to be printed to stdout")
 
@@ -38,7 +39,7 @@ func registerCLA() ([]string,bool,int,int) {
 
   // local file options
   flag.StringVar(&logDir, "log-dir","","Directory output for log files (default is the current directory) directory must exist")
-  flag.StringVar(&dataDir, "data-dir",time.Now().String(),"Directory output for data files (default is the current directory) directory must exist")
+  flag.StringVar(&dataDir, "data-dir",time.Now().String()+"/","Directory output for data files (default is the current directory) directory must exist")
   flag.BoolVar(&disableLog, "disable-log",true,"Disable log file output")
 
 

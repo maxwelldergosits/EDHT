@@ -32,6 +32,7 @@ func (t *Daemon) Put(pair Tuple, reply *bool) error {
  *succeeded; as stated in Go RPC Semantics, a non-nil error value (i.e. key is not in store) will not
  *return a result in the reply parameter.*/
 func (t *Daemon) Get(key string, reply *string) error {
+  ml.VPrintln("getting:",key)
 	val, _, err := lookup(key)
 	*reply = val
 	return err
@@ -60,7 +61,6 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
   ks := srange.Range
 
   newKVs,err  := rpc_stubs.GetKVsInRangeDaemonRPC(ks.Start,ks.End,rs)
-  ml.NPrintln("got kvs",newKVs)
   if (err != nil) {
     *keys = nil
     return err
@@ -76,7 +76,11 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
 func (t * Daemon) DeleteKeysInRange(ra Range, succ * bool) error {
 
 
-  iterateKeys(func(key,value string) {deleteKey(key)})
+  iterateKeys(func(key,value string) {
+    if ra.Start <= key && key <= ra.End {
+      deleteKey(key)
+    }
+  })
   return nil
 
 }

@@ -11,6 +11,7 @@ import (
 type CoordinatorGroup struct {
   Pts *partition.PartitionSet
   Gms group.Group
+  ml mlog.MLog
 }
 
 
@@ -21,7 +22,7 @@ func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog
   del := &PD{newG,logger}
   pts := partition.MakeKeySpace(nshards,del)
 
-  return CoordinatorGroup{pts,newG}
+  return CoordinatorGroup{pts,newG,logger}
 }
 
 func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.MLog,cb func(uint64),dataDir string) (CoordinatorGroup, error) {
@@ -42,7 +43,7 @@ func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.M
   ps := partition.MakePartitionSet(pr,del)
   return CoordinatorGroup{
     ps,
-    g},nil
+    g,logger},nil
 }
 
 func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * partition.PartitionSet) (error){
@@ -84,7 +85,7 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
 
   err, _ := tpc.Run()
   if (err == nil && succ) {
-    cg.Pts.ApplyDeleteDiffs(diffs)
+    //cg.Pts.ApplyDeleteDiffs(diffs)
   }
   return err
 }
