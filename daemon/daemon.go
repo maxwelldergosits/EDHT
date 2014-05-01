@@ -34,7 +34,7 @@ func registerCLA(){
 
   flag.StringVar(&port, "port", "1456","Port to bind the server to")
   flag.StringVar(&ip, "address", "127.0.0.1","address to bind the server to")
-  flag.StringVar(&dataDir, "data-dir", time.Now().String(),"address to bind the server to")
+  flag.StringVar(&dataDir, "data-dir", time.Now().String()+"/","data directory, please end with a /")
 
   flag.BoolVar(&vall, "vall", false, "print all verbosity levels to stdout")
   var vl string
@@ -64,7 +64,7 @@ func main() {
 
  registerCLA()
 
-  preCommits = utils.NewStringStringMap(dataDir+"data")
+  preCommits = utils.NewStringStringMap(dataDir+"preCommits")
   data = utils.NewStringStringMap(dataDir+"data")
   ml = mlog.Create(verboseLevels,"",true,vall)
 

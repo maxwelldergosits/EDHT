@@ -26,6 +26,7 @@ func insert(pair Tuple){
 func lookup(key string) (string, bool,error){
   val,err := data.Get(key)
   if err == nil {
+    ml.VPrintf("got %s for %s",val,key)
     return val,true,nil
   }
 	return "", false, errors.New("daemon lookup error: nonexistent key.")

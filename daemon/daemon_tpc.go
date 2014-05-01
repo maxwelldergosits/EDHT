@@ -4,23 +4,20 @@ import (
   "sync"
 )
 
-var pendingCommmits map[string]string
 
 var PreCommitLock sync.Mutex
 
-func init() {
-  pendingCommmits = make(map[string]string)
-
-}
-
-
 func preCommit(key string, value string) bool {
+  ml.VPrintln("tpc","precommiting")
   PreCommitLock.Lock()
   defer PreCommitLock.Unlock()
-  if _, ok := pendingCommmits[key]; ok {
+
+  _, err := preCommits.Get(key)
+  if err == nil {
     return false // there is a pending commit for this key DO NOT PRECOMMIT
   } else {
-    pendingCommmits[key] =value
+    ml.VPrintln("tpc","precommiting")
+    preCommits.Put(key,value)
     return true
   }
 }
@@ -28,7 +25,8 @@ func preCommit(key string, value string) bool {
 func commit(key string) string{
 
 
-  t := Tuple{key,pendingCommmits[key]}
+  str,_ := preCommits.Get(key)
+  t := Tuple{key,str}
 
   ov,replace,err := lookup(key)
 
@@ -43,12 +41,13 @@ func commit(key string) string{
   // update the stats on number of keys and data
 
   insert(t)
-  delete(pendingCommmits,key)
+  preCommits.Delete(key)
   return ov
 }
 
+
 func abort(key string) {
-  delete(pendingCommmits,key)
+  preCommits.Delete(key)
 }
 
 func (t* Daemon) PreCommit(pair Tuple, reply * bool) error{

@@ -30,6 +30,7 @@ var (
 
   // final variables
   port string
+  web_port string
   ip   string
   groupAddress string
   groupconnect bool
@@ -44,6 +45,8 @@ var (
   gc CoordinatorGroup.CoordinatorGroup // coordinated state.
 )
 
+// Implementing web delegate interface
+// this allows the web interface to talk to the data base
 type WD int
 
 func (w * WD) GetF(key string) (string,error) {
@@ -87,7 +90,7 @@ func main() {
 
 
 
-  web_interface.StartUp(ml,port+"8",new(WD))
+  web_interface.StartUp(ml,web_port,new(WD))
 
 }
 

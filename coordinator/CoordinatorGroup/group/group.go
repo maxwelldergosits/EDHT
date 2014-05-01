@@ -44,7 +44,7 @@ func NewGroup(shards, failures uint,localPort,localAddress string,logger mlog.ML
 func JoinGroup(regReply RegisterReply, logger mlog.MLog, cb func(uint64),  dataDir string) (Group) {
   newGroup := Group{}
   newGroup.coordinators = utils.NewUint64ServerFromMap(dataDir+"coordinators",regReply.Coordinators)
-  newGroup.daemons = utils.NewUint64ServerFromMap(dataDir+"coordinators",regReply.Daemons)
+  newGroup.daemons = utils.NewUint64ServerFromMap(dataDir+"daemons",regReply.Daemons)
   newGroup.ml = logger
   newGroup.id = regReply.ID
   newGroup.nshards = regReply.Nshards
