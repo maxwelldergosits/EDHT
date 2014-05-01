@@ -38,7 +38,7 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
     return nil
   }
   var acceptors map[uint64]RemoteServer = make(map[uint64]RemoteServer)
-  for k,v := range g.coordinators {
+  for k,v := range g.coordinators.Map() {
     acceptors[k] = v
   }
 
@@ -50,7 +50,7 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
   ok,_ := t.Run()
   if (ok==nil){
     if rs.Coordinator {
-      return RegisterReply{g.coordinators,g.daemons,rs.ID,g.nshards,g.nfailures}
+      return RegisterReply{g.coordinators.Map(),g.daemons.Map(),rs.ID,g.nshards,g.nfailures}
     }else {
       return RegisterReply{nil,nil,rs.ID,0,0}
     }
@@ -63,22 +63,22 @@ func (g * Group) AttachRSToGroup_local(rs RemoteServer) RegisterReply {
 
 func (g * Group) PreCommit(rs RemoteServer)bool{
   g.ml.VPrintln("gms","precommiting:",rs)
-  g.pendingCommits[rs.ID] = rs
+  g.pendingCommits.Put(rs.ID,rs)
   return true
 }
 
 func (g * Group) LocalCommit(rs RemoteServer){
   g.ml.VPrintln("gms","commiting:",rs)
   if rs.Coordinator {
-    g.coordinators[rs.ID]=rs
+    g.coordinators.Put(rs.ID,rs)
   } else {
     g.newDaemonCallBack(rs.ID)
-    g.daemons[rs.ID]=rs
+    g.daemons.Put(rs.ID,rs)
   }
-  delete(g.pendingCommits,rs.ID)
+  g.pendingCommits.Delete(rs.ID)
 }
 
 func (g * Group) LocalAbort(rs RemoteServer) {
   g.ml.VPrintln("gms","aborting:",rs)
-  delete(g.pendingCommits,rs.ID)
+  g.pendingCommits.Delete(rs.ID)
 }

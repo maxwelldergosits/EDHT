@@ -67,7 +67,7 @@ func main() {
 
   if(groupconnect) {
     var err error
-    gc, err = CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port,ml,newDaemon)
+    gc, err = CoordinatorGroup.ConnectToGroup(groupAddress,groupPort,ip,port,ml,newDaemon,dataDir)
 
     if err != nil {
       ml.NPrintf("Error: %s, Couldn't join group shutting down\n",err.Error())
@@ -80,7 +80,7 @@ func main() {
       ml.NPrintln("waiting for",failures +1, "coordinators")
       ml.NPrintln("waiting for",nshards * (failures +1), "daemons")
 
-      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,port,ip,ml,newDaemon)
+      gc = CoordinatorGroup.NewCoodinatorGroup(nshards,failures,port,ip,ml,newDaemon,dataDir)
   }
   go CoordinatorStartServer(ip,port)
   startRecalc(recalcTime)

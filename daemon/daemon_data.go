@@ -19,12 +19,13 @@ var (
 //insert value in tuple into hashtable.
 func insert(pair Tuple){
   ml.VPrintln("kv","Adding key:",pair.Key)
-	data[pair.Key]= pair.Value
+	data.Put(pair.Key,pair.Value)
 }
 
 //return value corresponding to 'key'
 func lookup(key string) (string, bool,error){
-  if val, ok := data[key];ok {
+  val,err := data.Get(key)
+  if err == nil {
     return val,true,nil
   }
 	return "", false, errors.New("daemon lookup error: nonexistent key.")
@@ -33,14 +34,14 @@ func lookup(key string) (string, bool,error){
 
 func iterateKeys(iterFunc func(key,value string)) {
 
-  for key,value := range data {
+  for key,value := range data.Map() {
     iterFunc(key,value)
   }
 }
 
 func deleteKey(key string) {
 
-  delete(data,key)
+  data.Delete(key)
 
 }
 
@@ -84,7 +85,7 @@ func (t *Daemon) WriteToDisk(path string, reply *string) error{
 
 	defer f.Close()
 
-	for key, value := range data {
+	for key, value := range data.Map() {
 		_, err := f.WriteString(key + ", " + value)
 		if(err != nil){
 			return errors.New("WriteToDisk: WriteString error.")
@@ -99,7 +100,7 @@ func (t * Daemon) GetAllKVsInRange(Keyrange Range, reply *map[string]string) err
 
   newmap := make(map[string]string)
 
-  for k,v := range data {
+  for k,v := range data.Map() {
     if (Keyrange.Start < k && k < Keyrange.End) {
       newmap[k] = v
     }

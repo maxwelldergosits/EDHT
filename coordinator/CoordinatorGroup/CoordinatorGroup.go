@@ -14,9 +14,9 @@ type CoordinatorGroup struct {
 }
 
 
-func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog,cb func(uint64)) CoordinatorGroup{
+func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog,cb func(uint64),dataDir string) CoordinatorGroup{
 
-  newG := group.NewGroup(uint(nshards),uint(failures),port,addr,logger,cb)
+  newG := group.NewGroup(uint(nshards),uint(failures),port,addr,logger,cb,dataDir)
 
   del := &PD{newG,logger}
   pts := partition.MakeKeySpace(nshards,del)
@@ -24,7 +24,7 @@ func NewCoodinatorGroup(nshards,failures int, port,addr string, logger mlog.MLog
   return CoordinatorGroup{pts,newG}
 }
 
-func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.MLog,cb func(uint64)) (CoordinatorGroup, error) {
+func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.MLog,cb func(uint64),dataDir string) (CoordinatorGroup, error) {
 
   mid := utils.GenMachineId()
   rs := RemoteServer{
@@ -37,7 +37,7 @@ func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.M
   if (err != nil) {
     return CoordinatorGroup{},err
   }
-  g := group.JoinGroup(rr,logger,cb)
+  g := group.JoinGroup(rr,logger,cb,dataDir)
   del := &PD{g,logger}
   ps := partition.MakePartitionSet(pr,del)
   return CoordinatorGroup{

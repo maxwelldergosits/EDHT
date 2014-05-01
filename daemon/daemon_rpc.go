@@ -37,19 +37,6 @@ func (t *Daemon) Get(key string, reply *string) error {
 	return err
 }
 
-/*GetAllKeys will return an array consisting of all keys in the daemon's data store in arbitrary order.
- *Argument arg is ignored, and reply is not used. Error is nil on success, non-nil on failure.
- */
-func (t *Daemon) GetAllKeys(arg string, reply *[]string) error{
-	keys := make([]string, len(data))
-	i := 0
-	for key, _ := range data{
-		keys[i] = key
-    i+=1
-	}
-	*reply = keys
-	return nil
-}
 
 // arg = 1 if you want the number of keys
 // arg = 2 if you want the number of bytes
