@@ -18,6 +18,10 @@ func (t * PartitionSet) GetShardForKey(key string) *Shard{
 
 }
 
+func (t * PartitionSet) CanCommit() bool {
+  return !t.tpcInProgress
+}
+
 func (t * Shard) Daemons() *map[uint64]bool{
   return &t.daemons
 }

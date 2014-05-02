@@ -19,7 +19,7 @@ sleep 1
 
 for i in $(seq 1 $num_coordinators);
   do
-    coordinator -port=$start_port -connect-to-group -group-port=1456 -group-address=127.0.0.1 -recalc-time=$3&
+    coordinator -port=$start_port -connect-to-group -group-port=1456 -group-address=127.0.0.1 -recalc-time=$3 -web-port=-1&
     start_port=$(($start_port + 1))
     sleep .2
 done
