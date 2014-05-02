@@ -108,12 +108,10 @@ func GenerateDiffs(oldPS, newPS PartitionSet) ([]Diff) {
     if en > e && i < len(oldPS.shards)-1 {
       //copy e -> en from shard[i+1]
       diffs = append(diffs, Diff{i+1,i,e,en})
-
     }
     if sn > s {
       // delete sn -> s after done copying
       diffs = append(diffs, Diff{-1,i,sn,s})
-
     }
     if en < e {
       // delete en -> e after done copying
@@ -135,6 +133,7 @@ func (ps * PartitionSet) Ranges() []uint64 {
 
 func (ps * PartitionSet) CalculateDiffs(keys []uint) ([]Diff,*PartitionSet) {
   cp := ps.Recalc(keys)
+  if(!cp.Verify()){panic("new partition is missing keys")}
   diffs := GenerateDiffs(*ps,cp)
   return diffs,&cp
 }

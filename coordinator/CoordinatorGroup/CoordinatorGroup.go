@@ -85,7 +85,7 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
 
   err, _ := tpc.Run()
   if (err == nil && succ) {
-    cg.Pts.ApplyDeleteDiffs(diffs)
+    cg.Pts.GarbageCollect()
   }
   return err
 }

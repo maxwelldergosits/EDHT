@@ -138,23 +138,6 @@ func (pts * PartitionSet) ApplyCopyDiffs(diffs []Diff) bool{
   return succ
 }
 
-func (pts * PartitionSet) ApplyDeleteDiffs(diffs []Diff) {
-
-  deleteDiffs := make([]Diff,0)
-
-  for i := range diffs {
-    if diffs[i].From == -1 {
-      deleteDiffs = append(deleteDiffs,diffs[i])
-    }
-  }
-
-
-  for i := range deleteDiffs {
-    diff := deleteDiffs[i]
-    pts.shards[diff.To].DeleteKs(diff.Start,diff.End)
-  }
-
-}
 
 func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) bool {
 
@@ -177,12 +160,19 @@ func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) bool {
   return succ
 }
 
-func (shard * Shard) DeleteKs(start, end uint64) {
+
+func (pts * PartitionSet) GarbageCollect() {
+
+  for i := range pts.shards {
+    pts.shards[i].GarbageCollect()
+  }
+}
+func (shard * Shard) GarbageCollect() {
 
   for k,_ := range *shard.Daemons() {
     fromServer := shard.delegate.GetDaemon(k)
 
-    rpc_stubs.DeleteKeysInRangeDaemonRPC(unconv(start),unconv(end),fromServer)
+    rpc_stubs.DeleteKeysNotInRangeDaemonRPC(unconv(shard.Start),unconv(shard.End),fromServer)
   }
 
 }
