@@ -66,11 +66,10 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
     return err
   }
   newKeys := make([]string,0,len(newKVs))
-  if(len(newKVs) > 0) {
-    ml.NPrintln(keys)
-  }
   for k,v := range newKVs {
-    insert(Tuple{k,v})
+    preCommit(k,v)
+    commit(k)
+    newKeys = append(newKeys,k)
   }
   *keys = newKeys
   return nil
@@ -78,9 +77,19 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
 
 func (t * Daemon) DeleteKeysInRange(ra Range, succ * bool) error {
 
-
-  iterateKeys(func(key,value string) {
+  iterateKeys(func(key string) {
     if ra.Start <= key && key <= ra.End {
+      deleteKey(key)
+    }
+  })
+  return nil
+
+}
+
+func (t * Daemon) DeleteKeysNotInRange(ra Range, succ * bool) error {
+
+  iterateKeys(func(key string) {
+    if key < ra.Start || ra.End < key {
       deleteKey(key)
     }
   })

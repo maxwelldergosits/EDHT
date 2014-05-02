@@ -71,6 +71,10 @@ func (m * StringStringMap) Map() map[string]string {
   }
   return out
 }
+
+func (m* StringStringMap) KeyChan() (<- chan string) {
+  return m.d.Keys()
+}
 /* Uint64Server Map functions */
 func (m * Uint64ServerMap) Put(key uint64, rs RemoteServer) error {
   bs := remoteServerToBytes(rs)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"errors"
   . "EDHT/common"
   "sync"
@@ -33,16 +32,19 @@ func lookup(key string) (string, bool,error){
 }
 
 
-func iterateKeys(iterFunc func(key,value string)) {
+func iterateKeys(iterFunc func(key string)) {
 
-  for key,value := range data.Map() {
-    iterFunc(key,value)
+  for key := range data.KeyChan() {
+    iterFunc(key)
   }
 }
 
 func deleteKey(key string) {
 
-  data.Delete(key)
+  err := data.Delete(key)
+  if err == nil {
+    addkey(-1)
+  }
 
 }
 
@@ -67,33 +69,6 @@ func addbytes(arg int)  {
   byteMutex.Lock()
   nbytes += arg
   byteMutex.Unlock()
-}
-
-
-
-
-/*WriteToDisk will attempt to dump the entire contents of the daemon's data store into a file
- *named by "path." As discussed on Friday, "path" will temporarily take the name of a local file
- *in the same directory, and will eventually be changed to provide support for absolute paths.
- *Error is nil on success, non-nil on failure; Reply is not used.
-*/
-
-func (t *Daemon) WriteToDisk(path string, reply *string) error{
-	f, err := os.Create("path")
-	if(err != nil){
-		return errors.New("WriteToDisk: OS file error.")
-	}
-
-	defer f.Close()
-
-	for key, value := range data.Map() {
-		_, err := f.WriteString(key + ", " + value)
-		if(err != nil){
-			return errors.New("WriteToDisk: WriteString error.")
-		}
-	}
-	f.Sync()
-	return nil
 }
 
 
