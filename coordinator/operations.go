@@ -1,5 +1,7 @@
 package main
 
+import "errors"
+
 func GetKey(key string) (string,error) {
   pts := gc.GetPartitions()
   return pts.Get(key)
@@ -7,8 +9,12 @@ func GetKey(key string) (string,error) {
 
 func PutKey(key string, value string, options map[string]bool) (error,map[string]string) {
   pts := gc.GetPartitions()
+  if pts.CanCommit() {
   err, info := pts.Put(key,value,options)
   return err,info
+  } else {
+    return errors.New("partition update in progress"),map[string]string{}
+  }
 }
 
 func GetInfo(i int) []uint64 {

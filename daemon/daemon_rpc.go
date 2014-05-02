@@ -66,6 +66,9 @@ func (t * Daemon) RetrieveKeysInRange(srange ServerRange, keys* []string) error 
     return err
   }
   newKeys := make([]string,0,len(newKVs))
+  if(len(newKVs) > 0) {
+    ml.NPrintln(keys)
+  }
   for k,v := range newKVs {
     insert(Tuple{k,v})
   }

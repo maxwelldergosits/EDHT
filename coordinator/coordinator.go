@@ -90,7 +90,9 @@ func main() {
 
 
 
-  web_interface.StartUp(ml,web_port,new(WD))
+  if web_port !="-1" {
+    web_interface.StartUp(ml,web_port,new(WD))
+  }
 
 }
 
