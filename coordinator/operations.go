@@ -44,3 +44,14 @@ func GetInfo(i int) []uint64 {
     return []uint64{}
   }
 }
+
+func getTopology() ([][]uint64, []uint64) {
+  daemons := gc.GetPartitions().IDs()
+  coordinators := gc.Gms.Coordinators()
+  outC,i := make([]uint64, len(coordinators)),0
+  for k, _ := range(coordinators){
+    outC[i] = k
+    i++
+  }
+  return daemons,outC
+}

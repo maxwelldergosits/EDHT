@@ -123,8 +123,16 @@ func infoHandler(w http.ResponseWriter, r * http.Request) {
     }
     b, _ := json.MarshalIndent(out,"","  ")
     w.Write(b)
+  } else if  strings.Contains(uri,"topology") {
+    d,c := delegate.Topology()
+    db, _ := json.Marshal(d)
+    dj :=string(db)
+    cb, _ := json.Marshal(c)
+    cj :=string(cb)
+    out := map[string]string{"daemons":dj,"coordinators":cj}
+    b, _ := json.MarshalIndent(out,"","  ")
+    w.Write(b)
   }
-  ml.VPrintln("web",uri)
 }
 
 func genHandler(w http.ResponseWriter, r * http.Request) {

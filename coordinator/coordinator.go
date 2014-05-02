@@ -59,6 +59,10 @@ func (w * WD) Info(i int) []uint64 {
   return GetInfo(i)
 }
 
+func (w * WD) Topology() ([][]uint64, []uint64) {
+  return getTopology()
+}
+
 func main() {
 
   verboseLevels, vall, nshards, failures:= registerCLA()

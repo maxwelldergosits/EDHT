@@ -46,6 +46,24 @@ func (shard * Shard) getDaemon() uint64 {
   return 0
 }
 
+func (shard * Shard) IDs() []uint64 {
+  ids := make([]uint64, len(shard.daemons))
+  i := 0
+  for k,_ := range shard.daemons {
+    ids[i] = k
+    i++
+  }
+  return ids
+}
+
+func (pts * PartitionSet) IDs() [][]uint64 {
+  ids := make([][]uint64,len(pts.shards))
+  for i := range pts.shards {
+    ids[i] = pts.shards[i].IDs()
+  }
+  return ids
+}
+
 func (shard * Shard) getValue(key string) (string,error) {
   time := utils.GetTimeNano()
   d := int(time % uint64(len(*shard.Daemons())))
