@@ -23,16 +23,731 @@ next tests: multiple clients using service simultaneously
             
 ------ With 10 coordinators and 20 Daemons
 
-1) 100 put/get requests where keys=0:99 and values=0:99 respectively. 
-    -Shortest request time: 
-    -Longest request time: 
-    -Average request time: 
+1) 100 put/get requests where keys= and values=0:99 respectively. Success
+    -Shortest request time: 2.18ms
+    -Longest request time: 4.97ms
+    -Average request time: 3.58ms
     
-2) 10,000 put/get requests where keys=0:9999 and values=0:9999 repsectively. 
-    -Shortest request time:
-    -Longest request time: 
-    -Average request time: 
+2) 10,000 put/get requests where keys= and values=0:9999 repsectively. 10,000 put/get to update previous keys. 
+        Get Request fails on first key (when run script multiple times without resetting DHT).
+    -Shortest request time: 2.15ms 2.11ms
+    -Longest request time: 6.23ms  37.2ms
+    -Average request time: 2.45ms  2.42ms
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 77.19%
+    
+    ***
+       Works on 2,000 ; 3,000; 4,000, fails on 5,000 (when run script multiple times without resetting DHT)
+       On 3,000 (1); 4,000 updates to keys fail.
+       On 3,000 (1); 4,000(1) updates succeeded.
+       On 5,000 updates succeeded.
+       On 3,000 initial get fails at 1,959th key (when run script multiple times without resetting DHT)
 
-3) 100 put/get requests to populate DHT. 100 put/get to update previous keys.
+3) 100 put/get requests to populate DHT. 100 put/get to update previous keys. Success: subsequent gets returned new values
 
-4) 10,000 put/get requests to populate DHT. 10,000 put/get to update previous keys.
+4) 8,000
+    -Shortest request time: 2.16ms
+    -Longest request time: 4.38ms
+    -Average request time: 2.42ms
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 61.6875%
+    
+5) 6,000
+    -shortest request time: 2.18ms
+    -longest request time: 3.72ms
+    -average request time: 2.46ms
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 83.5666666667%
+    
+6) 5,000
+    -shortest put request time: 2.14ms
+    -longest put request time: 4.31ms
+    -average put request time: 2.46ms
+    -shortest get request time: 1.81ms
+    -longest get request time: 3.63ms
+    -average get request time: 2.1ms
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+Note: the initial tests I ran on Thursday May 1st (10:40AM) were flawed in that in running the script multiple times,
+        I violated the assumption that the DHT was empty, an assumption utilized implicitly in the first test case.
+
+---- With 3 Coordinators and 16 Daemons
+
+1) 10,000
+    -shortest put request time: 2.13 ms
+    -longest put request time: 3.99 ms
+    -average put request time: 2.43 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.79 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 72.44%
+
+2) 8,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.45 ms
+    -average put request time: 2.43 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.41 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 40.8375%
+
+3) 6,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.23 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.41 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 56.6833333333%
+
+4) 5,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 3.78 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.40 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+5) 3,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 3.87 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.32 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+---- With 3 Coordinators and 12 Daemons
+    *** COULD NOT ACCESS SERVICE
+    
+---- With 3 Coordinators and 8 Daemons
+
+1) 10,000
+    -shortest put request time: 2.06600000001ms
+    -longest put request time: 4.6769999999ms
+    -average put request time: 2.4461354ms
+    
+    -shortest get request time: 1.8070000001ms
+    -longest get request time: 3.51699999987ms
+    -average get request time: 2.1058985ms
+    
+    -assertion errors on initial gets: 6.78%
+    -assertion errors on updates: 67.61%
+    
+2) 8,000
+    -shortest put request time: 2.10ms
+    -longest put request time: 4.13ms
+    -average put request time: 2.48ms
+    
+    -shortest get request time: 1.82ms
+    -longest get request time: 4.51ms
+    -average get request time: 2.26ms
+    
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 54.4%
+
+3) 6,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.67 ms
+    -average put request time: 2.45 ms
+    
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.97 ms
+    -average get request time: 2.10 ms
+    
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 34.2833333333%
+    
+4) 5,000
+    -shortest put request time: 2.18 ms
+    -longest put request time: 4.14 ms
+    -average put request time: 2.44 ms
+    
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.38 ms
+    -average get request time: 2.10 ms
+    
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+---- With 1 Coordinator and 4 Daemons
+
+1) 10,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.12 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.61 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+2) 8,000
+    -shortest put request time: 2.14 ms
+    -longest put request time: 3.85 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.59 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+3) 6,000
+
+4) 5,000
+
+---- With 1 Coordinator and 8 Daemons
+
+1) 10,000
+    -shortest put request time: 2.12 ms
+    -longest put request time: 3.64 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.63 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 69.25%
+    
+2) 8,000
+    -shortest put request time: 2.11 ms
+    -longest put request time: 4.95 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.43 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 44.0875%
+    
+3) 6,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.06 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.38 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 97.45%
+    
+4) 5,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 3.95 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 3.27 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+    
+---- With 1 Coordinator and 12 Daemons
+        **** COULD NOT ACCESS SERVICE
+        
+---- With 1 Coordinator and 16 Daemons
+
+1) 10,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 3.99 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.85 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 74.04%
+
+2) 8,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.51 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.64 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 40.5375%
+
+3) 6,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.77 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 3.21 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 95.6666666667%
+    
+4) 5,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.35 ms
+    -average put request time: 2.48 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 3.36 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+---- With 5 Coordinators and 4 Daemons
+
+1) 10,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.04 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 4.70 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+2) 8,000
+    -shortest put request time: 2.14 ms
+    -longest put request time: 3.97 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.46 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+3) 6,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.05 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.52 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+4) 5,000
+
+---- With 5 Coordinators and 8 Daemons
+
+1) 10,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.57 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.29 ms
+    -average get request time: 2.16 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 77.52%
+
+2) 8,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 3.98 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 4.10 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 56.0625%
+
+3) 6,000
+    -shortest put request time: 2.18 ms
+    -longest put request time: 4.05 ms
+    -average put request time: 2.48 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.52 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 94.8%
+
+4) 5,000
+    -shortest put request time: 2.20 ms
+    -longest put request time: 4.49 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.87 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+---- With 5 Coordinators and 16 Daemons
+
+1) 10,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 4.33 ms
+    -average put request time: 2.48 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 4.61 ms
+    -average get request time: 2.24 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 71.25%
+
+2) 8,000
+    -shortest put request time: 2.11 ms
+    -longest put request time: 6.42 ms
+    -average put request time: 2.50 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 4.84 ms
+    -average get request time: 2.35 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 45.875%
+
+3) 6,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 3.74 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.52 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 94.75%
+
+4) 5,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 3.74 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.49 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+    
+---- With 7 Coordinators and 4 Daemons
+
+1) 10,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.00 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 37.80 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+2) 8,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 3.87 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 4.01 ms
+    average get request time: 2.13 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+3) 6,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 4.28 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.84 ms
+    -longest get request time: 4.78 ms
+    -average get request time: 2.34 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+4) 5,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 3.98 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 37.17 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+---- With 7 Coordinators and 8 Daemons
+
+1) 10,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 4.05 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.06 ms
+    -average get request time: 2.13 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 74.45%
+
+
+2) 8,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 4.04 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.03 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 41.7%
+
+3) 6,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 3.81 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 39.09 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 99.1166666667%
+
+4) 5,000
+    -shortest put request time: 2.18 ms
+    -longest put request time: 3.76 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.46 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+---- With 7 Coordinators and 16 Daemons
+
+1) 10,000
+    -shortest put request time: 2.13 ms
+    -longest put request time: 4.45 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.95 ms
+    -average get request time: 2.13 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 78.74%
+
+2) 8,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.05 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.83 ms
+    -longest get request time: 3.93 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+3) 6,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 4.33 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.33 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 95.1%
+
+4) 5,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 4.07 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.80 ms
+    -longest get request time: 3.79 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+---- With 9 Coordinators and 4 Daemons
+
+1) 10,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 6.06 ms
+    -average put request time: 2.46 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.53 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+2) 8,000
+    -shortest put request time: 2.14 ms
+    -longest put request time: 4.54 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.81 ms
+    -longest get request time: 3.44 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+3) 6,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.25 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.38 ms
+    -average get request time: 2.09 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+4) 5,000
+
+---- With 9 Coordinators and 8 Daemons
+
+1) 10,000
+    -shortest put request time: 2.17 ms
+    -longest put request time: 3.93 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.46 ms
+    -average get request time: 2.12 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 79.59%
+
+2) 8,000
+    -shortest put request time: 2.12 ms
+    -longest put request time: 3.99 ms
+    -average put request time: 2.44 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.06 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 40.35%
+
+3) 6,000
+    -shortest put request time: 2.19 ms
+    -longest put request time: 4.73 ms
+    -average put request time: 2.70 ms
+ 
+    -shortest get request time: 1.86 ms
+    -longest get request time: 4.59 ms
+    -average get request time: 2.42 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 80.0166666667%
+
+4) 5,000
+    -shortest put request time: 2.15 ms
+    -longest put request time: 4.84 ms
+    -average put request time: 2.56 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.72 ms
+    -average get request time: 2.11 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
+
+---- With 9 Coordinators and 16 Daemons
+
+1) 10,000
+    -shortest put request time: 2.14 ms
+    -longest put request time: 38.28 ms
+    -average put request time: 2.55 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 4.03 ms
+    -average get request time: 2.22 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 77.12%
+
+2) 8,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 4.06 ms
+    -average put request time: 2.47 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.72 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 42.7375%
+    
+3) 6,000
+    -shortest put request time: 2.16 ms
+    -longest put request time: 3.91 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.68 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 83.6166666667%
+
+4) 5,000
+    -shortest put request time: 2.13 ms
+    -longest put request time: 38.86 ms
+    -average put request time: 2.45 ms
+ 
+    -shortest get request time: 1.82 ms
+    -longest get request time: 3.38 ms
+    -average get request time: 2.10 ms
+ 
+    -assertion errors on initial gets: 0.0%
+    -assertion errors on updates: 0.0%
