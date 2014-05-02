@@ -26,7 +26,13 @@ func GenId(machineid uint64, coor bool) uint64{
 // returns mac address of local computer
 func GenMachineId() uint64{
 
-  en0,_ := net.InterfaceByName("en0")
+  en0, err := net.InterfaceByName("en0")
+  if (err != nil) {
+    en0, err = net.InterfaceByName("eth0")
+    if (err != nil) {
+      panic("couldn't find a network id")
+    }
+  }
   buf := bytes.NewBuffer(en0.HardwareAddr) // b is []byte
   myfirstint, _ := binary.ReadVarint(buf)
 

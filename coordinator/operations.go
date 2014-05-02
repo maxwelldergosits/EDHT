@@ -10,9 +10,10 @@ func GetKey(key string) (string,error) {
 func PutKey(key string, value string, options map[string]bool) (error,map[string]string) {
   pts := gc.GetPartitions()
   if pts.CanCommit() {
-  err, info := pts.Put(key,value,options)
-  return err,info
+    err, info := pts.Put(key,value,options)
+    return err,info
   } else {
+    ml.NPrintln("dumping commit")
     return errors.New("partition update in progress"),map[string]string{}
   }
 }

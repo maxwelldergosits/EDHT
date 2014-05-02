@@ -8,12 +8,11 @@ var requests = `
 <script>
   function gen(n) {
     for (var i=0; i<n; i++) {
-      $.post("/put/submit?key="+i+"&value="+i, {}, function(response){
-        response = JSON.parse(response)
-        if (response.value != i) {
-          alert("expected:"+i+" got:"+i)
-        }
-      })
+$.ajax({
+  type: 'POST',
+  url: "/put/submit?key="+i+"&value="+i,
+  aync:false
+});
     }
     alert("done")
   }
