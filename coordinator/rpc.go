@@ -5,7 +5,6 @@ import (
   "net/rpc"
   "net"
   "net/http"
-  "EDHT/coordinator/CoordinatorGroup/partition"
   "log"
 )
 
@@ -60,12 +59,12 @@ func (t * Coordinator) RollbackRegister(ns * RemoteServer, res * bool) error {
 
 }
 type PreCommitRequest struct {
-  Pts partition.PartitionSet
+  R Ranges
   Id uint64
 }
 func (t * Coordinator) PreCommitPartition(pts PreCommitRequest, res * bool) error {
 
-  *res = gc.Pts.PreCommit(pts.Pts,pts.Id)
+  *res = gc.Pts.PreCommit(pts.R,pts.Id)
   return nil
 }
 

@@ -10,11 +10,11 @@ import (
 
 func (shard * Shard) GetInfoForShard() (error,uint){
   time := utils.GetTimeNano()
-  if (len(*shard.Daemons())) <= 0 {return errors.New("No Daemons"),0}
-  d := int(time % uint64(len(*shard.Daemons())))
+  if (len(shard.Daemons)) <= 0 {return errors.New("No Daemons"),0}
+  d := int(time % uint64(len(shard.Daemons)))
 
   i := 0
-  for k,_ := range *shard.Daemons() {
+  for k,_ := range shard.Daemons {
     if i==d {
       rs := shard.delegate.GetDaemon(k)
       rep, err := rpc_stubs.GetInfoDaemonRPC(1,rs)
@@ -33,10 +33,10 @@ func (shard * Shard) GetInfoForShard() (error,uint){
 //preferably returning a different one everytime to load balance
 func (shard * Shard) getDaemon() uint64 {
   time := utils.GetTimeNano()
-  if (len(*shard.Daemons())) <= 0 {return 0}
-  d := int(time % uint64(len(*shard.Daemons())))
+  if (len(shard.Daemons)) <= 0 {return 0}
+  d := int(time % uint64(len(shard.Daemons)))
   i := 0
-  for k,_ := range *shard.Daemons() {
+  for k,_ := range shard.Daemons {
     if i==d {
       return k
     } else {
@@ -47,9 +47,9 @@ func (shard * Shard) getDaemon() uint64 {
 }
 
 func (shard * Shard) IDs() []uint64 {
-  ids := make([]uint64, len(shard.daemons))
+  ids := make([]uint64, len(shard.Daemons))
   i := 0
-  for k,_ := range shard.daemons {
+  for k,_ := range shard.Daemons {
     ids[i] = k
     i++
   }
@@ -57,19 +57,19 @@ func (shard * Shard) IDs() []uint64 {
 }
 
 func (pts * PartitionSet) IDs() [][]uint64 {
-  ids := make([][]uint64,len(pts.shards))
-  for i := range pts.shards {
-    ids[i] = pts.shards[i].IDs()
+  ids := make([][]uint64,len(pts.Shards))
+  for i := range pts.Shards {
+    ids[i] = pts.Shards[i].IDs()
   }
   return ids
 }
 
 func (shard * Shard) getValue(key string) (string,error) {
   time := utils.GetTimeNano()
-  d := int(time % uint64(len(*shard.Daemons())))
+  d := int(time % uint64(len(shard.Daemons)))
 
   i := 0
-  for k,_ := range *shard.Daemons() {
+  for k,_ := range shard.Daemons{
     if i==d {
       rs := shard.delegate.GetDaemon(k)
       rep, err := rpc_stubs.GetKeyDaemonRPC(key,rs)
@@ -87,7 +87,7 @@ func (shard * Shard) getValue(key string) (string,error) {
 
 func (shard * Shard) Put(key,value string, options map[string]bool) (error,map[string]string) {
   if (options["unsafe"]) {
-    for k,_ := range *shard.Daemons() {
+    for k,_ := range shard.Daemons {
       go func(){
         rs := shard.delegate.GetDaemon(k)
         rpc_stubs.DaemonPutRPC(key,value,rs)
@@ -115,9 +115,9 @@ func (pts * PartitionSet) Put(key, value string, options map[string]bool) (error
 }
 
 func (pts * PartitionSet) GetNKeysForEachShard() ([]uint,error) {
-  keys := make([]uint,len(pts.shards))
-  for i := range pts.shards {
-    err,info := pts.shards[i].GetInfoForShard()
+  keys := make([]uint,len(pts.Shards))
+  for i := range pts.Shards {
+    err,info := pts.Shards[i].GetInfoForShard()
     keys[i] = info
     if err != nil {
       return []uint{},err
@@ -143,7 +143,7 @@ func (pts * PartitionSet) ApplyCopyDiffs(diffs []Diff) bool{
     diff := copyDiffs[i]
 
     go func(diff Diff) {
-      done <- pts.shards[diff.To].CopyKVs(pts.shards[diff.From],diff.Start,diff.End)
+      done <- pts.Shards[diff.To].CopyKVs(pts.Shards[diff.From],diff.Start,diff.End)
     }(diff)
 
   }
@@ -157,11 +157,11 @@ func (pts * PartitionSet) ApplyCopyDiffs(diffs []Diff) bool{
 }
 
 
-func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) bool {
+func (shard * Shard) CopyKVs(otherShard Shard, start, end uint64) bool {
 
-  num_daemons := len(*shard.Daemons())
-  results := make(chan int,len(*shard.Daemons()))
-  for k,_ := range *shard.Daemons() {
+  num_daemons := len(shard.Daemons)
+  results := make(chan int,len(shard.Daemons))
+  for k,_ := range shard.Daemons {
     fromServer := shard.delegate.GetDaemon(otherShard.getDaemon())
     toServer   := shard.delegate.GetDaemon(k)
     go func(fromServer,toServer RemoteServer) {
@@ -181,13 +181,13 @@ func (shard * Shard) CopyKVs(otherShard * Shard, start, end uint64) bool {
 
 func (pts * PartitionSet) GarbageCollect() {
 
-  for i := range pts.shards {
-    pts.shards[i].GarbageCollect()
+  for i := range pts.Shards {
+    pts.Shards[i].GarbageCollect()
   }
 }
 func (shard * Shard) GarbageCollect() {
 
-  for k,_ := range *shard.Daemons() {
+  for k,_ := range shard.Daemons {
     fromServer := shard.delegate.GetDaemon(k)
 
     rpc_stubs.DeleteKeysNotInRangeDaemonRPC(unconv(shard.Start),unconv(shard.End),fromServer)

@@ -1,6 +1,7 @@
 package main
 import (
   "time"
+  . "EDHT/common"
 )
 
 
@@ -43,7 +44,8 @@ func recalc() {
   }
   ml.VPrintln("recalc","diffs:",diffs)
 
-  err = gc.UpdatePartitions(diffs,npts) //if it fails, thats okay
+  rs := npts.Ranges()
+  err = gc.UpdatePartitions(diffs,Ranges{rs}) //if it fails, thats okay
 
   if err != nil {
     ml.VPrintln("recalc", "Recalculation Error:",err.Error())

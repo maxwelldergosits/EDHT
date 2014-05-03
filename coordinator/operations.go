@@ -34,7 +34,7 @@ func GetInfo(i int) []uint64 {
     }
     return out
   } else if (i == 2) {
-    tmp := pts.Ranges()
+    tmp := pts.IntRanges()
     out := make([]uint64,len(tmp)/2)
     for i:=0; i < len(tmp)/2; i++ {
       out[i] = tmp[(2*i) + 1] - tmp[(2*i)]

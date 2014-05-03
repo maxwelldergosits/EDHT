@@ -37,13 +37,13 @@ func (shard * Shard) tryTPC(key string, value string, options map[string]bool) (
   id := shard.delegate.GetLocalID()
 
   acceptors := make(map[uint64]RemoteServer)
-  for k,_ := range *shard.Daemons() {
+  for k,_ := range shard.Daemons {
     acceptors[k] = shard.delegate.GetDaemon(k)
   }
 
-  var failure = func(v RemoteServer) {
+  var failure = func(v RemoteServer, e error) {
     shard.delegate.DeleteDaemon(v.ID)
-    delete(*shard.Daemons(),v.ID)
+    delete(shard.Daemons,v.ID)
   }
 
   tpc := utils.InitTPC(acceptors,id,noop,noop,noop,rpc,rc,ra,failure,!(options["unsafe"]))

@@ -46,13 +46,13 @@ func ConnectToGroup(groupAddress, groupPort, address, port string, logger mlog.M
     g,logger},nil
 }
 
-func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * partition.PartitionSet) (error){
+func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, r Ranges) (error){
   // Two phase commit
   updateID := utils.GetTimeNano()
   var succ bool = false
 
   localPreCommit := func() {
-    cg.Pts.PreCommit(*newPTS,updateID)
+    cg.Pts.PreCommit(r,updateID)
   }
 
   localCommit := func() {
@@ -63,7 +63,7 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
     cg.Pts.Abort(updateID)
   }
   remotePreCommit := func(rs RemoteServer) (bool,error) {
-    return partition.PreCommitPartition(*newPTS,updateID,rs)
+    return partition.PreCommitPartition(r,updateID,rs)
   }
   remoteCommit := func(rs RemoteServer) (map[string]string) {
     partition.CommitPartition(updateID,rs)
@@ -73,7 +73,8 @@ func (cg * CoordinatorGroup) UpdatePartitions(diffs []partition.Diff, newPTS * p
     partition.AbortPartition(updateID,rs)
     return nil
   }
-  failure := func(rs RemoteServer) {
+  failure := func(rs RemoteServer,e error) {
+    cg.ml.NPrintln(e.Error())
     cg.Gms.Delete(rs)
   }
 

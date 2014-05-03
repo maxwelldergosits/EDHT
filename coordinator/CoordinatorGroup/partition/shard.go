@@ -12,16 +12,16 @@ type PartitionDelegate interface {
 type Shard struct {
   Start uint64
   End uint64
-  daemons map[uint64]bool
+  Daemons map[uint64]bool
   Keys uint
   delegate PartitionDelegate
 }
 
 type PartitionSet struct {
-  shards []*Shard
+  Shards []Shard
   d PartitionDelegate
   tpcInProgress bool
-  newPTS *PartitionSet
+  newRanges Ranges
   updateID uint64
 }
 

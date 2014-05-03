@@ -5,16 +5,16 @@ import (
     . "EDHT/common"
 )
 
-func (t * PartitionSet) GetShardForKey(key string) *Shard{
+func (t * PartitionSet) GetShardForKey(key string) Shard{
 
   var n = conv(key)
 
-  for _,shard := range t.shards {
+  for _,shard := range t.Shards {
     if shard.Start <= n && n <= shard.End {
       return shard
     }
   }
-  return nil // This should never happen
+  return Shard{} // This should never happen
 
 }
 
@@ -22,35 +22,36 @@ func (t * PartitionSet) CanCommit() bool {
   return !t.tpcInProgress
 }
 
-func (t * Shard) Daemons() *map[uint64]bool{
-  return &t.daemons
+func (t * Shard) GetDaemons() map[uint64]bool{
+  return t.Daemons
 }
 
 
 func MakePartitionSet(ns []ShardCopy, del PartitionDelegate) *PartitionSet{
-  shards := make([]*Shard,len(ns))
+  shards := make([]Shard,len(ns))
   for i := range ns {
     sc := ns[i]
-    shards[i] = &Shard{
+    if (sc.Daemons == nil) {panic("nil map")}
+    shards[i] = Shard{
       Start:sc.Start,
       End:sc.End,
-      daemons:sc.Daemons,
+      Daemons:sc.Daemons,
       Keys:0,
       delegate:del}
   }
   return &PartitionSet{
     shards,
-    del,false,nil,0}
+    del,false,Ranges{},0}
 }
 
 func (pts * PartitionSet) GetShardCopies() []ShardCopy {
-  scs := make([]ShardCopy,len(pts.shards))
-  for i := range pts.shards {
-    shard := pts.shards[i]
+  scs := make([]ShardCopy,len(pts.Shards))
+  for i := range pts.Shards {
+    shard := pts.Shards[i]
     scs[i] = ShardCopy {
       Start:shard.Start,
       End:shard.End,
-      Daemons:shard.daemons}
+      Daemons:shard.Daemons}
   }
   return scs
 }
@@ -58,16 +59,16 @@ func (pts * PartitionSet) GetShardCopies() []ShardCopy {
 // n must be a postive power of two, 2 4 8 16 32 etc
 func MakeKeySpace(n int, del PartitionDelegate) *PartitionSet {
 
-  var shards_map = make([]*Shard,n,n)
+  var shards_map = make([]Shard,n,n)
   var size uint64 = 1 << 63
   var chunk uint64 = size / uint64(n)
 
   for i:=0; i < n; i++ {
-    ns := &Shard{Start:(uint64(i) * chunk),End:(uint64(i+1) * chunk) -1,daemons:make(map[uint64]bool),Keys:0,delegate:del}
+    ns := Shard{Start:(uint64(i) * chunk),End:(uint64(i+1) * chunk) -1,Daemons:make(map[uint64]bool),Keys:0,delegate:del}
     shards_map[i] = ns
   }
 
-  return &PartitionSet{shards_map,del,false,nil,0}
+  return &PartitionSet{shards_map,del,false,Ranges{},0}
 
 }
 
@@ -125,8 +126,8 @@ func unconv(n uint64) string {
 // function that gets called when a new daemon is commited to the system.
 // Argument : id of the daemon
 func ( t * PartitionSet) AddDaemon(id uint64) {
-  slot := int(djb2(id) % uint64(len(t.shards)))
-  t.d.Logger().VPrintln("gms","added daemon to shard",slot)
-  t.shards[slot].daemons[id]= true
+  slot := int(djb2(id) % uint64(len(t.Shards)))
+  t.d.Logger().NPrintln("gms","added daemon to shard",slot)
+  t.Shards[slot].Daemons[id]= true
 }
 

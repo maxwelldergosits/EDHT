@@ -59,3 +59,6 @@ type PutRequest struct{
   Options map[string]bool
 }
 
+type Ranges struct {
+  Rs []Range
+}
