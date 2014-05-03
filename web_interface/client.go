@@ -144,10 +144,14 @@ func genHandler(w http.ResponseWriter, r * http.Request) {
   fmt.Fprintln(w,requests)
 }
 
+
 func StartUp(logger mlog.MLog,port string,del WebDelegate) {
   ml = logger
   delegate = del
   ml.VPrintln("web","starting web inteface")
+
+  fs := http.FileServer(http.Dir(del.Dir()))
+
 
   http.HandleFunc("/put",handler)
   http.HandleFunc("/put/submit",shandler)
@@ -155,5 +159,7 @@ func StartUp(logger mlog.MLog,port string,del WebDelegate) {
   http.HandleFunc("/get/submit",getshandler)
   http.HandleFunc("/stats/balance/",infoHandler)
   http.HandleFunc("/gen/",genHandler)
+  nfs := http.StripPrefix("/view/", fs)
+  http.Handle("/view/",nfs)
   log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -5,4 +5,5 @@ type WebDelegate interface {
   PutF(string,string,map[string]bool) (error,map[string]string)
   Info(int) []uint64
   Topology() ([][]uint64,[]uint64)
+  Dir() string
 }

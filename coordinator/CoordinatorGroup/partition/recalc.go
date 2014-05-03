@@ -3,8 +3,8 @@ import . "EDHT/common"
 
 func init() {
 
-  f = .05
-  thres = .05
+  f = .20
+  thres = .25
 }
 
 func pd(e,a uint) float32 {

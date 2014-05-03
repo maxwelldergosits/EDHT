@@ -34,6 +34,7 @@ var (
   ip   string
   groupAddress string
   groupconnect bool
+  vis string
   logDir string
   dataDir string
   disableLog bool
@@ -61,6 +62,10 @@ func (w * WD) Info(i int) []uint64 {
 
 func (w * WD) Topology() ([][]uint64, []uint64) {
   return getTopology()
+}
+
+func (w * WD) Dir() string {
+  return vis
 }
 
 func main() {
