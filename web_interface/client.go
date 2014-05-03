@@ -44,10 +44,11 @@ var (
 )
 
 func gethandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     fmt.Fprintf(w, getForm)
 }
 func getshandler(w http.ResponseWriter, r *http.Request) {
-
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     key:=r.FormValue("key")
     value,err := delegate.GetF(key)
     if err != nil {
@@ -62,9 +63,11 @@ func getshandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     fmt.Fprintf(w, putForm)
 }
 func shandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     key:= r.FormValue("key")
     if (key == "horses") {
       fmt.Fprintf(w,easter_egg)
@@ -106,6 +109,7 @@ func shandler(w http.ResponseWriter, r *http.Request) {
 
 
 func infoHandler(w http.ResponseWriter, r * http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Content-Type","text/json")
   uri := r.RequestURI
   if strings.Contains(uri,"keys") {
@@ -136,6 +140,7 @@ func infoHandler(w http.ResponseWriter, r * http.Request) {
 }
 
 func genHandler(w http.ResponseWriter, r * http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
   fmt.Fprintln(w,requests)
 }
 
