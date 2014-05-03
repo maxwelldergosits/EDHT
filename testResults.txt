@@ -751,3 +751,23 @@ Note: the initial tests I ran on Thursday May 1st (10:40AM) were flawed in that 
  
     -assertion errors on initial gets: 0.0%
     -assertion errors on updates: 0.0%
+    
+    
+Observations ---
+    Ran 50+ tests across various system configurations and workloads.
+    Coordinators ranged form 1 to 9
+    Daemons ranged from 4 to 16
+    Workload ranged from 200 to 20,000 gets/puts respectively. (400 to 40,000 total)
+    Tests had 2 phases:
+    Phase 1 -> store 100 to 10,000 key-value pairs evenly distributed over the keyspace (then assert values later)
+    Phase 2 -> update all those ke-value pairs (and assert the new values later)
+    
+  1) We only observe inconsistency on initial puts ~6-7% with 3 Coordinators and 8 Daemons
+     ** Any other configuration provides perfect consistency on gets/puts that are not updates to a key
+  2) There does not appear to be a correlation between performance and ratio of coordinators and daemons
+  3) Generally much better consistency with small number of daemons
+      ** 0% inconsistency with 9/7/5/3/1 Coordinator(s) and 4 Daemons
+      **Fewer daemons implies lighter consensus overhead 
+  4) Number of coordinators does not appear to affect availability (speed) or consistency
+  5) System always available, steady request time of ~3ms across configurations tested
+  6) Consistency of updates falls with higher number of Daemons: between 34%  and 99% on updates for certain configurations
