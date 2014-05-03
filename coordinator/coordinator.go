@@ -92,10 +92,12 @@ func main() {
   go CoordinatorStartServer(ip,port)
   startRecalc(recalcTime)
 
-
+  wait := make(chan bool)
 
   if web_port !="-1" {
     web_interface.StartUp(ml,web_port,new(WD))
+  } else {
+    <- wait
   }
 
 }

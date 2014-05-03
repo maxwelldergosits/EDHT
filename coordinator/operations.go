@@ -13,7 +13,6 @@ func PutKey(key string, value string, options map[string]bool) (error,map[string
     err, info := pts.Put(key,value,options)
     return err,info
   } else {
-    ml.NPrintln("dumping commit")
     return errors.New("partition update in progress"),map[string]string{}
   }
 }
