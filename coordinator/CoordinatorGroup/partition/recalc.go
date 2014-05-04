@@ -3,14 +3,14 @@ import . "EDHT/common"
 
 func init() {
 
-  f = .20
+  f = .05
   thres = .25
 }
 
-func pd(e,a uint) float32 {
+func pd(e,a uint) float64 {
 
-  af := float32(a)
-  ef := float32(e)
+  af := float64(a)
+  ef := float64(e)
 
   if (af == ef) {
     return 0.0
@@ -19,8 +19,8 @@ func pd(e,a uint) float32 {
 
 }
 
-var f float32
-var thres float32
+var f float64
+var thres float64
 
 func (self *Shard) Copy() *Shard {
     r := new(Shard)
@@ -64,14 +64,14 @@ func (o* PartitionSet) Recalc(keys []uint) PartitionSet{
     o.d.Logger().VPrintln("recalc","pdiff=",pdiff)
 
     if pdiff < -thres {
-      e_1n := uint64(-pdiff * f * float32(e2-s2) + float32(e1))
+      e_1n := uint64(-pdiff * f * float64(e2-s2) + float64(e1))
       s_2n := e_1n+1
 
       t.Shards[i].Start = s_2n
       t.Shards[i-1].End = e_1n
 
     }else if pdiff > thres {
-      e_1n := uint64(-pdiff * f * float32(e1-s1) + float32(e1))
+      e_1n := uint64(-pdiff * f * float64(e1-s1) + float64(e1))
       s_2n := e_1n+1
 
       t.Shards[i].Start = s_2n

@@ -4,7 +4,6 @@ import "EDHT/coordinator/CoordinatorGroup/partition"
 import  . "EDHT/common"
 import "fmt"
 import "os"
-import "math/rand"
 import "strconv"
 import "github.com/mad293/mlog"
 import "encoding/json"
@@ -35,9 +34,9 @@ func main() {
 
 
   ml = mlog.Create([]string{},"",true,true)
-  n, _ = strconv.Atoi(os.Args[1])
-  iterations, _ = strconv.Atoi(os.Args[2])
-  numkeys, _ = strconv.Atoi(os.Args[3])
+  n, _ = strconv.Atoi(os.Args[1]) // Number of partitions
+  iterations, _ = strconv.Atoi(os.Args[2]) // iterations
+  numkeys, _ = strconv.Atoi(os.Args[3]) // keys
   pts := partition.MakeKeySpace(n,new(PD))
 
 
@@ -51,14 +50,16 @@ func main() {
   for t := 0; t < iterations; t++ {
 
     ranges := pts.Ranges()
-    sizes := make([]uint64,len(ranges)/2)
+    iranges := pts.IntRanges()
+    sizes := make([]uint64,len(iranges)/2)
     str := strconv.FormatInt(int64(t),10)
     keys := GetKeys(ranges)
 
-    for i:= 0; i<len(ranges); i+=2 {
-      sizes[i/2] = ranges[i+1] - ranges[i]
-      //data[i/2]["size"+str] = sizes[i/2]
+    for i:= 0; i<len(iranges); i+=2 {
+      if (t == iterations-1) {
+      sizes[i/2] = iranges[i+1] - iranges[i]
       data[i/2]["keys"+str] = uint64(keys[i/2])
+      }
     }
 
     pts = doDiff(pts)
@@ -72,33 +73,30 @@ func main() {
 }
 
 
-var mockedData map[uint64]bool
+var mockedData map[string]bool
 
 func initDiff() {
 
 
-  mockedData = make(map[uint64]bool)
+  mockedData = make(map[string]bool)
 
   for i := 0; i < numkeys; i++ {
 
-    //ri := uint64(rand.Uint32())<<32 + uint64(rand.Uint32())
-    ri := uint64(rand.Uint32())
-    fmt.Println(ri)
-    mockedData[ri] = true
+    mockedData[strconv.Itoa(i)] = true
 
   }
 
 }
 
-func GetKeys(ranges []uint64) []uint {
+func GetKeys(ranges []Range) []uint {
 
   keys := make([]uint,n)
 
   for k,_ := range mockedData {
 
     for i := 0; i < n; i++ {
-      start := ranges[2*i]
-      end := ranges[(2*i)+1]
+      end := ranges[i].End
+      start := ranges[i].Start
       if start <= k && k <= end {
         keys[i] +=1
         break

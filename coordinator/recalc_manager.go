@@ -1,6 +1,7 @@
 package main
 import (
   "time"
+  "EDHT/utils"
   . "EDHT/common"
 )
 
@@ -28,10 +29,13 @@ func recalc() {
   // for shard get number of keys being held
   keys,err := pts.GetNKeysForEachShard()
 
+
   if err != nil {
     ml.VPrintln("recalc", "Recalculation Error:",err.Error())
     return
   }
+
+   if (utils.CV(keys) < 1.0) {return}
 
 
 
