@@ -1,0 +1,8 @@
+//each line has the following format
+//course | course_number | instructor | description | seats_taken | seats_available | room | time
+//double slashes start a comment, leading and trailing whitespace ignored within each barred section
+//time is of the following format: hr:min(AM|PM)-hr:min(AM|PM)
+//here's a sample data line:
+CS 3300 | 16583 | David Mimno | This course will cover technologies for representing, modeling and displaying data in the context of interactive web pages. | 60 | 30 | Gates G01 | 12:05AM-1:00PM 
+CS 4410 | 17812 | Emin Sirer Robbert Van Renesse | Operating systems and tiny gnomes in your computer | 60 | 30 | Gates G01 | 12:05AM-1:00PM 
+ECON 3140 | 15618 | Yongmiao Hong | Introduction to statistics and probability | 20 | 240 | Goldwin Smith 255 | 1:25AM-2:40PM 
