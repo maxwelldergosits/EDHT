@@ -1,0 +1,231 @@
+<html>
+	<head>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+		<style>
+			svg {
+				border: 1px solid black;
+				position: relative;
+				left: 375px;
+			}
+
+			.node{
+				stroke-width: 2px;
+				stroke: black;
+			}
+			.description{
+				color: gray;
+				font-family: Calibri, Verdana, sans-serif;
+				font-size:50px;
+				margin: 0;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div class ="description">
+			EDHT Network Topology
+		</div>
+		<script>
+			//application related constants
+			var SERVER_LINK = "http://localhost:1456/stats/balance/topology";
+			var UPDATE_MS_DELAY = 3000;
+			var FIRST_DRAW = true;
+			var COORDINATOR_COLOR = "#78c679";
+			var COORDINATOR_RADIUS = 8;
+			var DAEMON_COLOR = "#41b6c4";
+			var DAEMON_RADIUS = 5;
+
+			var svg_width = 600;
+			var svg_height = 500;
+			//set when we create viz on FIRST_DRAW
+			var svg;
+
+			var color_scale = d3.scale.category20c();
+
+			var force_graph = d3.layout.force()
+					    .size([svg_width, svg_height])
+					    .linkStrength(0.25);
+
+			//when we re-request, we first check if the new data is the same
+			//as when we started. no need to reupdate if this is the case.
+			var initial_node_list;
+			var initial_link_list;
+			
+
+			/* The basic structure of the topology app is the same as the bar_visualization.
+			 * We set up a handler that calls itself periodically to either: 1) initialize the gfx
+			 * or 2) delete and entirely redraw the topology, if needed.
+			*/
+
+			var topology_handler = function(data){
+				var parsed_data = get_node_and_link(data);
+				var node_list = parsed_data[0];
+				var link_list = parsed_data[1];
+
+				if(FIRST_DRAW){
+					initial_node_list = node_list;
+					initial_link_list = link_list;
+
+					svg = d3.select("body").append("svg")
+						.attr("width", svg_width)
+						.attr("height", svg_height);
+
+					force_graph.nodes(node_list)
+						   .links(link_list)
+						   .start();
+
+					//create the link selection
+					var link = svg.selectAll(".link")
+     						      .data(link_list)
+    						      .enter().append("line")
+      						      .attr("class", "force_graph link")
+						      .style("stroke", "black")
+      						      .style("stroke-width", 1);
+
+					//node selection
+  					var node = svg.selectAll(".node")
+      						      .data(node_list)
+    						      .enter().append("circle")
+      						      .attr("class", "force_graph node")
+      						      .attr("r", function(d){
+								if(d.type == "COORDINATOR"){
+									return COORDINATOR_RADIUS;
+								}
+								else{
+									return DAEMON_RADIUS;
+								}
+						      })
+      						      .style("fill", function(d) { 
+								if(d.type == "COORDINATOR"){
+									return COORDINATOR_COLOR;
+								}
+								else{
+									return DAEMON_COLOR;
+								}
+						      })
+      						      .call(force_graph.drag);
+
+  					//add id's in a textbox right below the circles
+					node.append("title")
+					    .attr("class", "force_graph")
+      					    .text(function(d) { 
+						if(d.type == "COORDINATOR"){
+							return "COORDINATOR #" + d.number;
+						}
+						else{
+							return "DAEMON #" + d.number;
+						}
+					    });
+
+					force_graph.on("tick", function() {
+   						link.attr("x1", function(d) { return d.source.x; })
+        					.attr("y1", function(d) { return d.source.y; })
+       						.attr("x2", function(d) { return d.target.x; })
+        					.attr("y2", function(d) { return d.target.y; });
+
+    						node.attr("cx", function(d) { return d.x; })
+       					 	.attr("cy", function(d) { return d.y; });
+
+					});
+				}
+				else{
+					//NOTE: list equals takes positions into account; permations not considered equal
+					//this check works as long as the data i recieve from /stats/balance/topology is stable
+					if(!list_equals(node_list, initial_node_list) || !list_equals(link_list, initial_link_list)){
+						//delete ever
+					}
+
+				}
+
+				//setTimeout(function(){$.get(SERVER_LINK, topology_handler, "json");}, UPDATE_MS_DELAY);
+			};
+
+			$.get(SERVER_LINK, topology_handler, "json");	
+
+			//---------------------------------------------------------------------------------------------
+			var debug;
+			/*
+			* Given data from /stats/balance/topology, of form 
+			* { coordinators: [id list], daemons: [[coord 1 daemon id list], ... [coord n daemon id list]]}, returns 
+			* a node list of coordinator and daemon id's objects and their type: 
+			* [{number:c1 id, type:COORDINATOR}, {c2 id}, ..., cn id, c1 d1's id, c1 d2's id, ..., cn d1's id, ..., {number:cn dk's id, type:DAEMON}]
+			* and a link list of objects: [{source: src index in node list, target: target index in node list}, ...]
+			* suitable for use in a d3 force graph creation.
+			*/
+			function get_node_and_link(unparsed_data){
+				//need to reparse the attributes in data to get the actual lists. these are strings!
+				var data = {};
+				data.coordinators = JSON.parse(unparsed_data.coordinators);
+				data.daemons = JSON.parse(unparsed_data.daemons);
+
+				var node_list = [];
+				var link_list = [];
+
+				//add all coordinators first
+				for(var i = 0; i < data.coordinators.length; i++){
+					var node = {};
+					node.number = data.coordinators[i];
+					node.type = "COORDINATOR";
+					node_list.push(node);
+				}
+
+				//followed by daemons of each coordinator; we also add the link objects here
+				//since we can easily get index of daemon in flattened list.
+				for(var i = 0; i < data.daemons.length; i++){
+					for(var j = 0; j < data.daemons[i].length; j++){
+						//temporary patch to make sure we don't attempt to add daemons
+						//for nonexistent coordinators
+						if(i >= data.coordinators.length){
+							break;
+						}
+
+						var node = {};
+						node.number = data.daemons[i][j];
+						node.type = "DAEMON";
+						node_list.push(node);
+
+						//now index of daemon is node_list.length - 1
+						var link = {};
+						link.source = i;
+						link.target = node_list.length - 1;
+
+						link_list.push(link);
+					}
+				}
+
+				//also, add links between each and every coordinator
+				for(var i = 0; i < data.coordinators.length; i++){
+					for(var j = 0; j < data.coordinators.length; j++){
+						if(j != i){
+							var link = {};
+							link.source = i;
+							link.target = j;
+
+							link_list.push(link);
+						}
+					}
+				}
+
+				return [node_list, link_list];
+			}
+
+			function list_equal(l1, l2){
+				if(l1.length != l2.length){
+					return false;
+				}
+
+				for(var i = 0; i < l1.length; i++){
+					if(l1[i] != l2[i]){
+						return false;
+					}
+				}
+
+				return true;
+			}
+		
+		</script>
+	</body>
+
+</html>
