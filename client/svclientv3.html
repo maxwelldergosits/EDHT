@@ -1,0 +1,45 @@
+<html>
+	<head>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="cache.js"></script>
+		<script src="db.js"></script>
+		<script src="clientv2.js"></script>
+
+		<style>
+			table{
+				border-collapse: collapse;
+			}
+			table, th, td{
+				border: 1px solid red;
+				padding: none;
+			}
+		</style>
+	</head>
+	<body>
+	<script>
+		client_setup("http://localhost:14568/put/submit", "http://localhost:14568/get/submit");	
+	</script>
+
+	<div id="login_form">
+		<input type="text" id="login"/>
+		<input type="button" id="login_button" value="Login" onclick="client_login(); client_display_schedule(true, 5000);" />
+	</div>
+	
+	<div class="logged_in" style="display: none;">
+		<div id="schedule">
+		</div>
+		
+		<div id="search">
+				Course Keywords: <input type="text" id="keyword"><br>
+				Course Number: <input type="text" id="number"><br>
+				<input type="button" id="search_button" value="Search" onclick="client_search(true, 5000);" />
+		</div>
+
+		<div id="result">
+			
+		</div>
+	</div>
+
+	</body>
+</html>
