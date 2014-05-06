@@ -32,6 +32,7 @@ import (
   "net/http"
   "log"
   "fmt"
+  "EDHT/utils"
   "strings"
   "encoding/json"
   "strconv"
@@ -134,6 +135,20 @@ func infoHandler(w http.ResponseWriter, r * http.Request) {
     cb, _ := json.Marshal(c)
     cj :=string(cb)
     out := map[string]string{"daemons":dj,"coordinators":cj}
+    b, _ := json.MarshalIndent(out,"","  ")
+    w.Write(b)
+  } else {
+    f := func(in float64)string {return strconv.FormatFloat(in,'f',5,64)}
+    keys := delegate.Info(1)
+    out := map[string]string{}
+    out["Standard Deviation"] = f(utils.StdDev(keys))
+    out["std"] = f(utils.StdDev(keys))
+    out["Mean"] = f(utils.Mean(keys))
+    out["Coefficient of Variation"] = f(utils.StdDev(keys)/utils.Mean(keys))
+    out["cv"] = f(utils.StdDev(keys)/utils.Mean(keys))
+    for i,v := range utils.Devs(keys) {
+      out[strconv.Itoa(i)+" dev"] = f(float64(v))
+    }
     b, _ := json.MarshalIndent(out,"","  ")
     w.Write(b)
   }

@@ -1,7 +1,7 @@
 package utils
 
 
-func Mean(in []uint) float64 {
+func Mean(in []uint64) float64 {
 
   s := 0.0
   for _,v := range in {
@@ -10,18 +10,31 @@ func Mean(in []uint) float64 {
   return (s/float64(len(in)))
 }
 
+func Dev(mean, v float64) float64{
+  return ((mean - v)*(mean -v))
+}
 
-func StdDev(in []uint) float64 {
+func Devs(keys []uint64) []float64 {
+  mean := Mean(keys)
+  out := make([]float64,len(keys))
+  for i,iv := range keys {
+    v := float64(iv)
+    out[i] = Dev(mean,v)
+  }
+  return out
+}
+
+func StdDev(in []uint64) float64 {
   mean := Mean(in)
   s := 0.0
   for _,iv := range in {
     v := float64(iv)
-    s += ((mean - v)*(mean -v))
+    s += Dev(mean,v)
   }
   return s/float64(len(in))
 }
 
-func CV(in []uint) float64 {
+func CV(in []uint64) float64 {
 
   mean := Mean(in)
   sd   := StdDev(in)

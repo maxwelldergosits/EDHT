@@ -55,3 +55,4 @@ func getTopology() ([][]uint64, []uint64) {
   }
   return daemons,outC
 }
+
