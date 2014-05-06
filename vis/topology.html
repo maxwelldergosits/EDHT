@@ -45,6 +45,7 @@
 			var color_scale = d3.scale.category20c();
 
 			var force_graph = d3.layout.force()
+					    .charge(-4000)
 					    .size([svg_width, svg_height])
 					    .linkStrength(0.25);
 
@@ -187,11 +188,20 @@
 						node_list.push(node);
 
 						//now index of daemon is node_list.length - 1
-						var link = {};
+						/*var link = {};
 						link.source = i;
 						link.target = node_list.length - 1;
 
-						link_list.push(link);
+						link_list.push(link);*/
+
+						//now add an edge between a daemon to each and every coordinator
+						for(var k = 0; k < data.coordinators.length; k++){
+							var link = {};
+							link.source = k;
+							link.target = node_list.length - 1;
+
+							link_list.push(link);
+						}
 					}
 				}
 
