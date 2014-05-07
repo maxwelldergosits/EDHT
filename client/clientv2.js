@@ -277,7 +277,7 @@ function create_table(course_id_list, dest_id, data, headers, custom_class, add_
 			}
 			button_cell.append("input")
 					.attr("type", "button")
-					.attr("class", custom_class)
+					.attr("class", custom_class + " add_" + data[i]["db_key"])
 					.attr("onclick", "minus_course_seat(user_id," + data[i]["db_key"] + ",1)");
 		}	
 
@@ -295,7 +295,7 @@ function create_table(course_id_list, dest_id, data, headers, custom_class, add_
 			}
 			button_cell.append("input")
 					.attr("type", "button")
-					.attr("class", custom_class)
+					.attr("class", custom_class + " remove_" + data[i]["db_key"])
 					.attr("onclick", "minus_course_seat(user_id," + data[i]["db_key"] + "," + (-1) + ")");
 		}
 
@@ -404,6 +404,9 @@ function minus_course_seat(user, course_id, value){
 					alert("There was an error in reserving a spot!");	
 				}
 			}
+			else{
+				alert("The course is full!");
+			}
 		}
 		else{
 			alert("There was an error in signing up for the course.");
@@ -439,6 +442,14 @@ function minus_course_seat(user, course_id, value){
 			
 			
 			user_course_list = db_read(user);
+
+			//hide the button so the user can't remove or reenroll again
+			if(value > 0){
+				d3.selectAll(".add_"+course_id).data([]).exit().remove();
+			}
+			else{
+				d3.selectAll(".remove_"+course_id).data([]).exit().remove();
+			}
 
 			//should handle errors with writing to user's schedule
 			//refresh the user's schedule; force a refresh.
