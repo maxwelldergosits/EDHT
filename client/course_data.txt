@@ -6,3 +6,18 @@
 CS 3300 | 16583 | David Mimno | This course will cover technologies for representing, modeling and displaying data in the context of interactive web pages. | 60 | 30 | Gates G01 | 12:05AM-1:00PM 
 CS 4410 | 17812 | Emin Sirer Robbert Van Renesse | Operating systems and tiny gnomes in your computer | 60 | 30 | Gates G01 | 12:05AM-1:00PM 
 ECON 3140 | 15618 | Yongmiao Hong | Introduction to statistics and probability | 20 | 240 | Goldwin Smith 255 | 1:25AM-2:40PM 
+WB 3300| 12234 | RVR and Sirer | Intro to Web Design. Learn how the operating system works to better understand what your computer does.|220|175| Gates 01 |TuTh 1:25-2:40PM
+WB 4800| 23423 | Lucja Kot| Intro to Social Psych. Learn fundamental policies and principles for storing information and efficiently retrieving it. |220|220| Olin 155 |MoWeFr 2:30-3:20PM
+WB 4444| 23941 | Lucja Kot | Intro to Database Management Systems. Learn fundamental policies and principles for storing information and efficiently retrieving it. |220|220| Olin 155 |MoWeFr 2:30-3:20PM
+WB 1300| 23421 |  RVR and Sirer|Intro to Web Design. Learn how the operating system works to better understand what your computer does.Instructor: RVR and Sirer|220|175| Uris 205 |TuTh 1:25-2:40PM
+WB 2800| 18933 |Lucja Kot |Intro to Social Psych. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Olin 155 |MoWeFr 2:30-3:20PM
+WB 4420| 13489 | Lucja Kot | Intro to Database Management Systems. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Gates 01 | MoWeFr 2:30-3:20PM
+PSYCH 2800| 23490 | RVR and Sirer |Intro to Social Psych. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Gates 01 |MoWeFr 2:30-3:20PM
+CS 8420| 1341 | David Mimno |Intro to Database Management Systems. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220|Gates 01|MoWeFr 2:30-3:20PM
+INFO 3300| 13049 | David Mimno | Intro to Web Design. Learn how the operating system works to better understand what your computer does.|220|175|Uris 165|TuTh 1:25-2:40PM
+PSYCH 4800| 91831 |RVR and Sirer| Intro to Social Psych. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Gates 01 |MoWeFr 2:30-3:20PM
+CS 4444| 19830 |RVR and Sirer|Intro to Database Management Systems. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Uris 165 |MoWeFr 2:30-3:20PM
+ECON 1300| 18431 |RVR and Sirer|Intro to Web Design.Learn how the operating system works to better understand what your computer does.|220|175| Gates 01 |TuTh 1:25-2:40PM
+PE 2800| 89134 | RVR and Sirer|Intro to Social Psych. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Olin 165| MoWeFr 2:30-3:20PM
+AEM 4420| 13984 | RVR and Sirer |Intro to Database Management Systems. Learn fundamental policies and principles for storing information and efficiently retrieving it.|220|220| Uris 255 |MoWeFr 2:30-3:20PM
+INFO 6300| 10938 | RVR and Sirer |Intro to Web Design. Learn how the operating system works to better understand what your computer does.|220|175| Uris 165 |TuTh 1:25-2:40PM
