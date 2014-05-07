@@ -152,15 +152,33 @@ for k, v in keyword_group.iteritems():
 	form_wrapper = {"key":k , "value": json.dumps(v)}
 	request_object = requests.get(coordinator_put_link, params=form_wrapper)
 
-#now, we create student accounts with default empty schedules, i.e. entries of form
-#key: student-id, value: [<NO_CLASS>]
-for student in ["wfl33"]:
-	form_wrapper = {"key":student, "value":json.dumps(["NO_CLASS"])}
+
+f = open("user_accounts.txt", "r")
+lines = f.readlines()
+
+for line in lines:
+	line = line.strip().lower()
+
+	if line == "":
+		continue
+
+	form_wrapper = {"key":line, "value":json.dumps(["NO_CLASS"])}
 	request_object = requests.get(coordinator_put_link, params=form_wrapper)
 
 	#also put locks for the student object
-	form_wrapper = {"key":student+"__lock", "value":0}
+	form_wrapper = {"key":line+"__lock", "value":0}
 	request_object = requests.get(coordinator_put_link, params=form_wrapper)
+
+f.close()
+#now, we create student accounts with default empty schedules, i.e. entries of form
+#key: student-id, value: [<NO_CLASS>]
+#for student in ["wfl33"]:
+#	form_wrapper = {"key":student, "value":json.dumps(["NO_CLASS"])}
+#	request_object = requests.get(coordinator_put_link, params=form_wrapper)
+#
+	#also put locks for the student object
+#	form_wrapper = {"key":student+"__lock", "value":0}
+#	request_object = requests.get(coordinator_put_link, params=form_wrapper)
 
 
 		
