@@ -191,16 +191,3 @@ function db_release_tas_lock(key){
 	return db_raw_write(lock_name, "0");
 }
 
-/*
-* db_tas_write_and_create takes in a String key and a JSON value, and 
-* will overwrite/create that current (key, value) pair in the database,
-* and allocate additional resources to support sychronized writes to 
-* that field.
-* Returns true on success, false otherwise.
-* NOTE: results undefined if you call this function on a key that already
-* exists in the table.
-*/
-function db_tas_write_and_create(key, value){
-	//may not be a good idea to implement this; what happens
-	//when multiple ppl try to call this on the same key?
-}
