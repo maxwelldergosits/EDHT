@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="cache.js"></script>
+		<script src="db.js"></script>
+		<script src="clientv2.js"></script>
+
+		<style>
+			table{
+				border-collapse: collapse;
+			}
+			table, th, td{
+				border: 1px solid red;
+				padding: none;
+			}
+			p{
+				color : 
+				font-family: Verdana, sans-serif;
+				border-bottom: solid #ff3333;
+				font-size: 30px;
+			}
+			label { 
+				width: 200px; float: left; margin: 0 20px 0 0; 
+			}
+			label > span { 
+				display: block; margin: 0 0 3px; font-size: 1.2em; font-weight: bold; 
+			}
+			input { 
+				width: 200px; border: 1px solid #000; padding: 5px; 
+			}
+
+			#search_button{
+				position: relative;
+				top: 25px;
+			}
+
+			#sub_header > span{
+				font-color: #ff0000;
+				font-family: Verdana, sans-serif;
+				font-size: 100px;
+			}
+
+			#sub_header{
+				position: relative;
+				bottom: 160px;
+				left: 240px;
+			}
+			#content{
+				position: relative;
+				bottom: 150px;
+			}
+		</style>
+	</head>
+	<body>
+	<script>
+		client_setup("http://localhost:14568/put/submit", "http://localhost:14568/get/submit");	
+	</script>
+
+	<div id="header">
+		<img src="cornell.jpg"> 
+		<div id="sub_header">
+			<span>EDHT Student Center</span>
+		</div>
+	<div id="content">
+	<p id="user_title" class="banner">Login</p>
+
+	<div>
+	<div id="login_form">
+		<input type="text" id="login"/>
+		<input type="button" id="login_button" value="Login" onclick="client_login(); client_display_schedule(true, 5000);" />
+	</div>
+	
+	<div class="logged_in" style="display: none;">
+		<p id="user_title" class="banner">My Schedule</p>
+		<div id="schedule">
+		</div>
+
+		<p id="user_title" class="banner">Course Search</p>
+		
+		<div id="search">
+				<label for="keyword">
+					<span>Course Keywords</span>
+				        <input type="text" id="keyword">
+				</label>
+				<label for="number">
+					<span>Course Number:</span>
+					 <input type="text" id="number">
+				</label>
+				<div>		
+					<input type="button" id="search_button" value="Search" onclick="client_search(true, 5000);" />
+				</div>
+		</div>
+
+		<p id="user_title" class="banner">Search Results</p>
+		<div id="result">
+			
+		</div>
+	</div>
+	</div>
+
+	</body>
+</html>
